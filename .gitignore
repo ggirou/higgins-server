@@ -1,0 +1,7 @@
+.buildlog
+.project
+.children
+.settings/
+pubspec.lock
+packages/
+out/
