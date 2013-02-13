@@ -31,6 +31,7 @@ startServer(String basePath, String ip, int port) {
 }
 
 main() {
+  List<String> args = new Options().arguments;
   if(args.length == 3) {
     Path currentPath = new Path(new File(new Options().script).directorySync().path);
     Path basePath = currentPath.append(args[0]).canonicalize();
