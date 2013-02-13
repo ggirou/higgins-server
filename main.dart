@@ -44,3 +44,19 @@ main() {
     print("dart main.dart BASEPATH IP PORT");
   }
 }
+
+gitClone(){
+  List<String> args = new List<String>();
+  args.add("clone");
+  args.add("https://github.com/ggirou/higgins-heroku.git");
+  
+  ProcessOptions processOptions = new ProcessOptions();
+  Process.run('git', args, processOptions)
+      .then((ProcessResult pr) {
+        if(pr.exitCode == 0){
+          print("Git clone success");
+        }else {
+          print("Git clone failed with error code ${pr.exitCode}, ${pr.stderr}");
+        }
+      });
+}
