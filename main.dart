@@ -45,10 +45,10 @@ main() {
   }
 }
 
-gitClone(){
+void gitClone(String gitRepoUrl){
   List<String> args = new List<String>();
   args.add("clone");
-  args.add("https://github.com/ggirou/higgins-heroku.git");
+  args.add(gitRepoUrl);
   
   ProcessOptions processOptions = new ProcessOptions();
   Process.run('git', args, processOptions)
