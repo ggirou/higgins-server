@@ -31,7 +31,6 @@ startServer(String basePath, String ip, int port) {
 }
 
 main() {
-  List<String> args = new Options().arguments;
   if(args.length == 3) {
     Path currentPath = new Path(new File(new Options().script).directorySync().path);
     Path basePath = currentPath.append(args[0]).canonicalize();
@@ -47,9 +46,11 @@ main() {
 
 void gitClone(String gitRepoUrl){
   List<String> args = new List<String>();
-  args.add("clone");
-  args.add(gitRepoUrl);
-  
+  args.addAll(["clone", gitRepoUrl]); 
+  executeGitCommand(args);
+}
+
+void executeGitCommand(List<String> args) {
   ProcessOptions processOptions = new ProcessOptions();
   Process.run('git', args, processOptions)
       .then((ProcessResult pr) {
