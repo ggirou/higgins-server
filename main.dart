@@ -31,8 +31,15 @@ startServer(String basePath, String ip, int port) {
       }
     });
   };
-  server.addRequestHandler((request) => request.path.startsWith("config"), (HttpRequest request, HttpResponse response) {
+  server.addRequestHandler((request) => request.path.startsWith("/config/"), (HttpRequest request, HttpResponse response) {
+    var data = {
+      "host": config.host,
+      "port": config.port,
+      "basePath": config.basePath
+    };
     
+    response.outputStream.writeString(data.toString());
+    response.outputStream.close();
   });
 }
 
