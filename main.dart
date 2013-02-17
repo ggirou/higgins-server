@@ -1,4 +1,7 @@
 import 'dart:io';
+import 'lib/higgins_server.dart';
+
+Configuration config;
 
 _send404(HttpResponse response) {
   response.statusCode = HttpStatus.NOT_FOUND;
@@ -28,21 +31,33 @@ startServer(String basePath, String ip, int port) {
       }
     });
   };
+  server.addRequestHandler((request) => request.path.startsWith("config"), (HttpRequest request, HttpResponse response) {
+    
+  });
 }
 
 main() {
   List<String> args = new Options().arguments;
-  if(args.length == 3) {
-    Path currentPath = new Path(new File(new Options().script).directorySync().path);
-    Path basePath = currentPath.append(args[0]).canonicalize();
-    String path = basePath.toNativePath();
-    print("Lauching Web Server, rendering files from $path");
-    startServer(path, args[1], int.parse(args[2], onError: (s) => 80));
-    print("Server running...");
-  } else {
-    print("Please give the right arguments");
-    print("dart main.dart BASEPATH IP PORT");
-  }
+  if(args.length == 1) {
+    File f = new File(args[0]);
+    if(f.existsSync()) {
+      f.readAsString().then((json) { 
+        config = new Configuration.fromFile(json);
+        
+        Path currentPath = new Path(new File(new Options().script).directorySync().path);
+        Path basePath = currentPath.append(config.basePath).canonicalize();
+        String path = basePath.toNativePath();
+        print("Lauching Web Server, rendering files from $path");
+        startServer(path, config.host, config.port);
+        print("Server running...");
+      });
+      return;
+    } else {
+      print("$f doesn't exists.");
+    }
+  } 
+  print("Please give the right arguments");
+  print("dart main.dart conf.json");
 }
 
 void gitClone(String gitRepoUrl){

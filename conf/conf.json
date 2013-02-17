@@ -1,0 +1,19 @@
+{
+  "#" : "This is a sample configuration file",
+
+  "#" : "The server configuration",
+  "server" : {
+    "#" : "Listen for HTTP requests on the specified host",
+    "host" : "127.0.0.1",
+    "#" : "Listen for HTTP requests on the specified port",
+    "port" : 8080,
+    "#" : "Base path for the default static file handler",
+    "basePath" : "../higgins-web/web"
+  },
+
+  "#" : "The MongoDb configuration",
+  "mongoDb" : {
+    "#" : "The MongoDb uri",
+    "uri" : "mongodb://username:password@host:port/database"
+  }
+}

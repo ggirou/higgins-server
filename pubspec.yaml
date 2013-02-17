@@ -2,3 +2,5 @@ name: higgins_server
 version: 0.0.1
 author: The Pink Team
 description: Server part of the Higgins CI tool
+dependencies:
+  unittest: any
