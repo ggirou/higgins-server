@@ -3,33 +3,36 @@ import 'lib/higgins_server.dart';
 
 Configuration config;
 
-_send404(HttpResponse response) {
+_send404(HttpRequest request, HttpResponse response, String filePath) {
+  print("404 - ${request.path} - $filePath");
   response.statusCode = HttpStatus.NOT_FOUND;
   response.outputStream.close();
 }
 
-startServer(String basePath, String ip, int port) {
+startServer(Path basePath, String ip, int port) {
   var server = new HttpServer();
   server.listen(ip, port);
   print('Server started on: http://$ip:$port');
   server.defaultRequestHandler = (HttpRequest request, HttpResponse response) {
-    print("Request: ${request.path}");
+    print("${request.method} - ${request.path}");
     final String path = request.path == '/' ? '/index.html' : request.path;
-    final File file = new File('${basePath}${path}');
-    print("File: $file");
-    file.exists().then((bool found) {
-      if (found) {
-        file.fullPath().then((String fullPath) {
-          if (!fullPath.startsWith(basePath)) {
-            _send404(response);
-          } else {
-            file.openInputStream().pipe(response.outputStream);
-          }
-        });
-      } else {
-        _send404(response);
-      }
-    });
+    
+    String filePath = basePath.append(path).canonicalize().toNativePath();
+    print(filePath);
+    if(!filePath.startsWith(basePath.toNativePath())){
+      _send404(request, response, filePath);
+    } else {
+      final File file = new File(filePath);
+      file.exists().then((bool found) {
+        if (found) {
+          print("200 - ${request.path} - $filePath");
+          file.openInputStream().pipe(response.outputStream);
+        } else {
+          print("404a");
+          _send404(request, response, filePath);
+        }
+      });
+    }
   };
   server.addRequestHandler((request) => request.path.startsWith("/config/"), (HttpRequest request, HttpResponse response) {
     var data = {
@@ -41,6 +44,7 @@ startServer(String basePath, String ip, int port) {
     response.outputStream.writeString(data.toString());
     response.outputStream.close();
   });
+  server.addRequestHandler((request) => request.path.startsWith("/command/"), new CommandHandler().handler); 
 }
 
 main() {
@@ -53,9 +57,8 @@ main() {
         
         Path currentPath = new Path(new File(new Options().script).directorySync().path);
         Path basePath = currentPath.append(config.basePath).canonicalize();
-        String path = basePath.toNativePath();
-        print("Lauching Web Server, rendering files from $path");
-        startServer(path, config.host, config.port);
+        print("Lauching Web Server, rendering files from $basePath");
+        startServer(basePath, config.host, config.port);
         print("Server running...");
       });
       return;
