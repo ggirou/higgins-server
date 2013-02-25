@@ -28,7 +28,6 @@ startServer(Path basePath, String ip, int port) {
           print("200 - ${request.path} - $filePath");
           file.openInputStream().pipe(response.outputStream);
         } else {
-          print("404a");
           _send404(request, response, filePath);
         }
       });
