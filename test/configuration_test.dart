@@ -10,10 +10,10 @@ main() {
     test('parses an empty file', () {
       // GIVEN
       var json = '{}';
-      
+
       // WHEN
       var output = new ConfigurationFile.parse(json);
-      
+
       // THEN
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(0));
@@ -27,10 +27,10 @@ main() {
         "server" : { },
         "mongoDb" : { }
       }''';
-      
+
       // WHEN
       var output = new ConfigurationFile.parse(json);
-      
+
       // THEN
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(0));
@@ -52,10 +52,10 @@ main() {
           "uri" : "mongodb://username:password@host:port/database"
         }
       }''';
-      
+
       // WHEN
       var output = new ConfigurationFile.parse(json);
-      
+
       // THEN
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(666));
@@ -82,10 +82,10 @@ main() {
         "MONGODB_USERNAME": "myusername",
         "MONGODB_PASSWORD": "mypassword",
       };
-      
+
       // WHEN
       var output = new ConfigurationFile.parse(json, environment: environment);
-      
+
       // THEN
       expect(output.host, m.equals("192.168.0.1"));
       expect(output.port, m.equals(42));

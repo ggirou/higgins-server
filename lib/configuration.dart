@@ -7,7 +7,7 @@ abstract class Configuration {
   /** Listen for HTTP requests on the specified [host]. */
   String get host => "127.0.0.1";
 
-  /** Listen for HTTP requests on the specified [port]. 
+  /** Listen for HTTP requests on the specified [port].
    * If a [port] of 0 is specified the server will choose an ephemeral port. */
   int get port => 0;
 
@@ -16,9 +16,9 @@ abstract class Configuration {
 
   /** The MongoDb uri. */
   String get mongoDbUri => "";
-  
+
   Configuration();
-  
+
   factory Configuration.fromFile(String json) {
     return new ConfigurationFile.parse(json);
   }
@@ -29,7 +29,7 @@ class ConfigurationFile extends Configuration {
   int port = 0;
   String basePath = "";
   String mongoDbUri = "";
-  
+
   ConfigurationFile.parse(String json, {Map<String, String> environment}) {
     if(!?environment) {
       environment = Platform.environment;
@@ -38,7 +38,7 @@ class ConfigurationFile extends Configuration {
     if(values.containsKey("server")) {
       Map server = values["server"];
       host = server.containsKey("host") ?  server["host"] : host;
-      port = server.containsKey("port") ? 
+      port = server.containsKey("port") ?
           server["port"] is String ? int.parse(server["port"]) : server["port"]
           : port;
       basePath = server.containsKey("basePath") ?  server["basePath"] : basePath;
@@ -47,14 +47,14 @@ class ConfigurationFile extends Configuration {
       Map mongoDb = values["mongoDb"];
       mongoDbUri = mongoDb.containsKey("uri") ?  mongoDb["uri"] : mongoDbUri;
     }
-  }  
-  
+  }
+
   _reviver(Map<String, String> environment) => (key, value) {
       if(value is String && value.contains(r"$")) {
         environment.forEach((k, v) => value = value.replaceAll("\$$k", v));
         return value;
       } else {
         return value;
-      } 
+      }
     };
 }
