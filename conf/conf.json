@@ -14,6 +14,6 @@
   "#" : "The MongoDb configuration",
   "mongoDb" : {
     "#" : "The MongoDb uri",
-    "uri" : "mongodb://username:password@host:port/database"
+    "uri" : "mongodb://poc:pocd4rt@ds037857.mongolab.com:37857/poc"
   }
 }

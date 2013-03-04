@@ -2,6 +2,7 @@ import 'dart:io';
 import 'lib/higgins_server.dart';
 
 Configuration config;
+BuildDao buildDao;
 
 _send404(HttpRequest request, HttpResponse response, String filePath) {
   print("404 - ${request.uri} - $filePath");
@@ -14,6 +15,7 @@ startServer(Path basePath, String ip, int port) {
     print('Server started on: http://$ip:$port');
     var configPathMatching = (HttpRequest request) => request.uri.path.startsWith("/config/");
     var commandPathMatching = (HttpRequest request) => request.uri.path.startsWith("/command/");
+    var buildPathMatching = (HttpRequest request) => request.uri.path.startsWith("/builds/");
     server.listen((HttpRequest request) {
       var path = request.uri.path;
       print("${request.method} - ${path}");
@@ -30,6 +32,15 @@ startServer(Path basePath, String ip, int port) {
         response.close();
       } else if(path.startsWith("/command/")) {
         new CommandHandler().handler(request);
+      } else if(path.startsWith("/builds/")) {
+        String job = path.substring(8);
+        if(path.isEmpty){
+          buildDao.all().then((List builds) => request.response..addString(builds.toString())
+                                                               ..close());
+        } else {
+          buildDao.findByJob(job).then((List builds) => request.response..addString(builds.toString())
+                                                                        ..close());
+        }
       } else {
         HttpResponse response = request.response;
         final String file= path == '/' ? '/index.html' : path;
@@ -67,6 +78,8 @@ main() {
         print("Lauching Web Server, rendering files from $basePath");
         startServer(basePath, config.host, config.port);
         print("Server running...");
+        initMongo(config.mongoDbUri);
+        buildDao = new BuildDao();
       });
       return;
     } else {
