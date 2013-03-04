@@ -3,5 +3,5 @@
 .children
 .settings/
 pubspec.lock
-packages/
+packages
 out/
