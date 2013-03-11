@@ -75,20 +75,3 @@ _startServer(Path basePath, String ip, int port) {
   }, onError: (error) => print("Failed to start server: $error"));
 }
 
-void gitClone(String gitRepoUrl){
-  List<String> args = new List<String>();
-  args.addAll(["clone", gitRepoUrl]);
-  executeGitCommand(args);
-}
-
-void executeGitCommand(List<String> args) {
-  ProcessOptions processOptions = new ProcessOptions();
-  Process.run('git', args, processOptions)
-      .then((ProcessResult pr) {
-        if(pr.exitCode == 0){
-          print("Git clone success");
-        }else {
-          print("Git clone failed with error code ${pr.exitCode}, ${pr.stderr}");
-        }
-      });
-}
