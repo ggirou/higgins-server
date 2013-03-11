@@ -4,10 +4,10 @@ class GitRunner {
   void gitClone(String gitRepoUrl){
     List<String> args = new List<String>();
     args.addAll(["clone", gitRepoUrl]);
-    executeGitCommand(args);
+    _executeGitCommand(args);
   }
 
-  void executeGitCommand(List<String> args) {
+  void _executeGitCommand(List<String> args) {
     ProcessOptions processOptions = new ProcessOptions();
     Process.run('git', args, processOptions)
     .then((ProcessResult pr) {

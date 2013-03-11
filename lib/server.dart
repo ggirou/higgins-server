@@ -2,6 +2,7 @@ part of higgins_server;
 
 Configuration _config;
 BuildDao _buildDao;
+GitRunner _gitRunner;
 
 _send404(HttpRequest request, HttpResponse response, String filePath) {
   print("404 - ${request.uri} - $filePath");
@@ -18,6 +19,7 @@ startServer(Configuration configuration) {
   print("Server running...");
   initMongo(_config.mongoDbUri);
   _buildDao = new BuildDao();
+  _gitRunner = new GitRunner();
 }
 
 _startServer(Path basePath, String ip, int port) {
@@ -51,6 +53,9 @@ _startServer(Path basePath, String ip, int port) {
           _buildDao.findByJob(job).then((List builds) => request.response..addString(builds.toString())
                                                                         ..close());
         }
+      }else if(path.startsWith("/build")){
+          _gitRunner.gitClone("https://github.com/ggirou/higgins-server.git");
+          
       } else {
         HttpResponse response = request.response;
         final String file= path == '/' ? '/index.html' : path;
