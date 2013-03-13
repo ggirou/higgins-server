@@ -2,9 +2,16 @@ part of higgins_server;
 
 
 initMongo(String url){
+  print("Start mongo with $url");
   objectory = new ObjectoryDirectConnectionImpl(url,_registerClasses, false);
-  objectory.initDomainModel();   
+  objectory.initDomainModel();
 }
+
+closeMongo(){
+  print("Close mongo");
+  objectory.close();
+}
+
 
 _registerClasses(){
   objectory.registerClass(Build.NAME, () => new Build()); 
