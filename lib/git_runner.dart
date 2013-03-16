@@ -4,6 +4,7 @@ class GitRunner {
   void gitClone(String gitRepoUrl){
     List<String> args = new List<String>();
     args.addAll(["clone", gitRepoUrl]);
+    print("git clone $gitRepoUrl");
     _executeGitCommand(args);
   }
 
