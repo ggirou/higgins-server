@@ -6,7 +6,7 @@
     "#" : "Listen for HTTP requests on the specified host",
     "host" : "127.0.0.1",
     "#" : "Listen for HTTP requests on the specified port",
-    "port" : 8080,
+    "port" : 9090,
     "#" : "Base path for the default static file handler",
     "basePath" : "../higgins-web/web"
   },

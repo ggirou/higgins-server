@@ -19,7 +19,7 @@ startServer(Configuration configuration) {
   print("Server running...");
   initMongo(_config.mongoDbUri);
   _buildDao = new BuildDao();
-  _gitRunner = new GitRunner();
+  _gitRunner = new GitRunner(_config.gitExecutablePath);
 }
 
 _startServer(Path basePath, String ip, int port) {
