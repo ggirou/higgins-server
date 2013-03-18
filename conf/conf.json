@@ -15,5 +15,10 @@
   "mongoDb" : {
     "#" : "The MongoDb uri",
     "uri" : "mongodb://poc:pocd4rt@ds037857.mongolab.com:37857/poc"
+  },
+  "#" : "The binaries paths",
+  "bin" : {
+    "#" : "The git executable path",
+    "gitExecutablePath" : "/usr/local/git/bin/"
   }
 }
