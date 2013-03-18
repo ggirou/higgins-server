@@ -5,3 +5,4 @@ description: Server part of the Higgins CI tool
 dependencies:
   unittest: any
   objectory: 0.1.1
+  dartmocks: any
