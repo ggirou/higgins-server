@@ -45,7 +45,7 @@ _startServer(Path basePath, String ip, int port) {
           var jsonData = JSON.parse(data);
           
           HttpResponse response = request.response;
-          response..addString(JSON.stringify({"build_id": "123"}))
+          response..write(JSON.stringify({"build_id": "123"}))
           ..close();
 
           _gitRunner.gitClone(jsonData["git_url"]);
@@ -76,13 +76,13 @@ void _showConfig(HttpRequest request) {
   };
   
   HttpResponse response = request.response;
-  response.addString(data.toString());
+  response.write(data.toString());
   response.close();
 }
 
 void _getBuilds(HttpRequest request, String job) {
   var writeResponse = (List builds) => request.response
-      ..addString(builds.toString())
+      ..write(builds.toString())
       ..close();
   
   if(job.isEmpty){
