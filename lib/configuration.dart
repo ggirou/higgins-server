@@ -20,7 +20,7 @@ abstract class Configuration {
   String get mongoDbUri => "";
 
   /** The Path to the git executable binary */
-  String get gitExecutablePath => "";
+  String get gitExecutablePath => "git";
   
   Configuration();
 
