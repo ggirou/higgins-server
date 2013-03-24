@@ -1,30 +1,19 @@
 library db_acccess_test;
 
+import 'dart:async';
 import 'package:unittest/unittest.dart';
-import 'package:higgins_server/higgins_server.dart';
+import 'package:unittest/matcher.dart' as m;
+import 'package:higgins_server/higgins_server.dart' as db;
 
-BuildDao buildDao ;
+//BuildDao buildDao ;
 
 main(){
   group('Configuration file', () {
-    setUp(() => _setUp());
-    tearDown(() => _tearDown());
-    test('should find all', () => should_find_all());
+    test('Only connect', (){
+      db.initMongo("mongodb://localhost").then((bool success) {
+        expect(success, m.isTrue);
+        db.closeMongo(); 
+      });
+    });
   });
-}
-
-_setUp(){
-  initMongo("mongodb://localhost");
-  buildDao = new BuildDao();
-  // TODO insérer des données
-}
-
-_tearDown(){
- // closeMongo();
-}
-
-
-should_find_all(){
-  // TODO test async
-  //buildDao.all()
 }

@@ -1,10 +1,10 @@
 part of higgins_server;
 
 
-initMongo(String url){
+Future<bool> initMongo(String url){
   print("Start mongo with $url");
   objectory = new ObjectoryDirectConnectionImpl(url,_registerClasses, false);
-  objectory.initDomainModel();
+  return objectory.initDomainModel();
 }
 
 closeMongo(){
