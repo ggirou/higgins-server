@@ -1,5 +1,7 @@
 part of higgins_server;
 
+Configuration configuration;
+
 /**
  * Configuration for Higgins server.
  */

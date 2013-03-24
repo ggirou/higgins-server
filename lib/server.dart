@@ -1,6 +1,5 @@
 part of higgins_server;
 
-Configuration _config;
 BuildDao _buildDao;
 GitRunner _gitRunner;
 
@@ -10,16 +9,15 @@ _send404(HttpRequest request, HttpResponse response, String filePath) {
   response.close();
 }
 
-startServer(Configuration configuration) {
-  _config = configuration;
+startServer() {
   Path currentPath = new Path(new File(new Options().script).directorySync().path);
-  Path basePath = currentPath.append(_config.basePath).canonicalize();
+  Path basePath = currentPath.append(configuration.basePath).canonicalize();
   print("Lauching Web Server, rendering files from $basePath");
-  _startServer(basePath, _config.host, _config.port);
+  _startServer(basePath, configuration.host, configuration.port);
   print("Server running...");
-  initMongo(_config.mongoDbUri);
+  initMongo(configuration.mongoDbUri);
   _buildDao = new BuildDao();
-  _gitRunner = new GitRunner(_config.gitExecutablePath);
+  _gitRunner = new GitRunner(gitExecutablePath: configuration.gitExecutablePath);
 }
 
 _startServer(Path basePath, String ip, int port) {
@@ -70,9 +68,9 @@ Future<String> _readAsString(HttpRequest request) {
 
 void _showConfig(HttpRequest request) {
   var data = {
-              "host": _config.host,
-              "port": _config.port,
-              "basePath": _config.basePath
+              "host": configuration.host,
+              "port": configuration.port,
+              "basePath": configuration.basePath
   };
   
   HttpResponse response = request.response;

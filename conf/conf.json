@@ -19,6 +19,6 @@
   "#" : "The binaries paths",
   "bin" : {
     "#" : "The git executable path",
-    "gitExecutablePath" : "/usr/local/git/bin/"
+    "gitExecutablePath" : "/usr/local/git/bin/git"
   }
 }

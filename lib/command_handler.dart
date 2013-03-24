@@ -8,18 +8,18 @@ class CommandHandler {
     ..set(HttpHeaders.CACHE_CONTROL, 'no-cache')
     ..set(HttpHeaders.CONNECTION, 'keep-alive');
     
-    runCommand(response);
+    runSocketCommand(response);
   }
 }
 
-runCommand(StreamConsumer<List<int>, dynamic> output) {
-  IsolateSink sink = streamSpawnFunction(_runCommand);
+runSocketCommand(StreamConsumer<List<int>, dynamic> output) {
+  IsolateSink sink = streamSpawnFunction(_runSocketCommand);
   var mb = new MessageBox();
   sink.add(mb.sink);
   mb.stream.transform(new StringEncoder()).pipe(output);
 }
 
-_runCommand() {
+_runSocketCommand() {
   stream.listen((IsolateSink output) => processCommand().listen(output.add).onDone(output.close));
 }
 

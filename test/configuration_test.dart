@@ -55,7 +55,7 @@ main() {
           "uri" : "mongodb://username:password@host:port/database"
         },
         "bin" : {
-          "gitExecutablePath" : "/usr/local/git/bin/"
+          "gitExecutablePath" : "/usr/local/git/bin/git"
         }
       }''';
 
@@ -67,7 +67,7 @@ main() {
       expect(output.port, m.equals(666));
       expect(output.basePath, m.equals("../web/web"));
       expect(output.mongoDbUri, m.equals("mongodb://username:password@host:port/database"));
-      expect(output.gitExecutablePath, m.equals("/usr/local/git/bin/"));
+      expect(output.gitExecutablePath, m.equals("/usr/local/git/bin/git"));
     });
 
     test('parses a file with environment variables', () {

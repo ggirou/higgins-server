@@ -7,7 +7,8 @@ main() {
     File f = new File(args[0]);
     if(f.existsSync()) {
       f.readAsString().then((json) {
-        startServer(new Configuration.fromFile(json));
+        configuration = new Configuration.fromFile(json);
+        startServer();
       });
       return;
     } else {
