@@ -19,13 +19,15 @@ main() {
       expect(output.port, m.equals(0));
       expect(output.basePath, m.equals(""));
       expect(output.mongoDbUri, m.equals(""));
+      expect(output.gitExecutablePath, m.equals(""));
     });
 
     test('parses a file with empty categories', () {
       // GIVEN
       var json = '''{
         "server" : { },
-        "mongoDb" : { }
+        "mongoDb" : { },
+        "bin" : { }
       }''';
 
       // WHEN
@@ -36,6 +38,7 @@ main() {
       expect(output.port, m.equals(0));
       expect(output.basePath, m.equals(""));
       expect(output.mongoDbUri, m.equals(""));
+      expect(output.gitExecutablePath, m.equals(""));
     });
 
     test('parses a simple file', () {
@@ -50,6 +53,9 @@ main() {
         },
         "mongoDb" : {
           "uri" : "mongodb://username:password@host:port/database"
+        },
+        "bin" : {
+          "gitExecutablePath" : "/usr/local/git/bin/"
         }
       }''';
 
@@ -61,6 +67,7 @@ main() {
       expect(output.port, m.equals(666));
       expect(output.basePath, m.equals("../web/web"));
       expect(output.mongoDbUri, m.equals("mongodb://username:password@host:port/database"));
+      expect(output.gitExecutablePath, m.equals("/usr/local/git/bin/"));
     });
 
     test('parses a file with environment variables', () {
@@ -73,6 +80,9 @@ main() {
         },
         "mongoDb" : {
           "uri" : "mongodb://$MONGODB_USERNAME:$MONGODB_PASSWORD@host:port/database"
+        },
+        "bin" : {
+          "gitExecutablePath" : "$GIT_EXECUTABLE_PATH"
         }
       }''';
       var environment = {
@@ -81,6 +91,7 @@ main() {
         "BASE_PATH": "xxx/yyy",
         "MONGODB_USERNAME": "myusername",
         "MONGODB_PASSWORD": "mypassword",
+        "GIT_EXECUTABLE_PATH": "/usr/local/git/bin/",
       };
 
       // WHEN
@@ -91,6 +102,7 @@ main() {
       expect(output.port, m.equals(42));
       expect(output.basePath, m.equals("xxx/yyy"));
       expect(output.mongoDbUri, m.equals("mongodb://myusername:mypassword@host:port/database"));
+      expect(output.gitExecutablePath, m.equals("/usr/local/git/bin/"));
     });
   });
 }

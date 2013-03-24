@@ -17,6 +17,9 @@ abstract class Configuration {
   /** The MongoDb uri. */
   String get mongoDbUri => "";
 
+  /** The Path to the git executable binary */
+  String get gitExecutablePath => "";
+  
   Configuration();
 
   factory Configuration.fromFile(String json) {
@@ -29,6 +32,7 @@ class ConfigurationFile extends Configuration {
   int port = 0;
   String basePath = "";
   String mongoDbUri = "";
+  String gitExecutablePath = "";
 
   ConfigurationFile.parse(String json, {Map<String, String> environment}) {
     if(!?environment) {
@@ -46,6 +50,10 @@ class ConfigurationFile extends Configuration {
     if(values.containsKey("mongoDb")) {
       Map mongoDb = values["mongoDb"];
       mongoDbUri = mongoDb.containsKey("uri") ?  mongoDb["uri"] : mongoDbUri;
+    }
+    if(values.containsKey("bin")) {
+      Map bin = values["bin"];
+      gitExecutablePath = bin.containsKey("gitExecutablePath") ?  bin["gitExecutablePath"] : gitExecutablePath;
     }
   }
 

@@ -19,7 +19,7 @@ startServer(Configuration configuration) {
   print("Server running...");
   initMongo(_config.mongoDbUri);
   _buildDao = new BuildDao();
-  _gitRunner = new GitRunner();
+  _gitRunner = new GitRunner(_config.gitExecutablePath);
 }
 
 _startServer(Path basePath, String ip, int port) {
@@ -33,50 +33,83 @@ _startServer(Path basePath, String ip, int port) {
       print("${request.method} - ${path}");
 
       if(path.startsWith("/config/")) {
-        var data = {
-                    "host": _config.host,
-                    "port": _config.port,
-                    "basePath": _config.basePath
-        };
-        
-        HttpResponse response = request.response;
-        response.addString(data.toString());
-        response.close();
+        _showConfig(request);
       } else if(path.startsWith("/command/")) {
+        // String build = path.substring(9);
         new CommandHandler().handler(request);
       } else if(path.startsWith("/builds/")) {
         String job = path.substring(8);
-        if(path.isEmpty){
-          _buildDao.all().then((List builds) => request.response..addString(builds.toString())
-                                                               ..close());
-        } else {
-          _buildDao.findByJob(job).then((List builds) => request.response..addString(builds.toString())
-                                                                        ..close());
-        }
-      }else if(path.startsWith("/build")){
-          _gitRunner.gitClone("https://github.com/ggirou/higgins-server.git");
+        _getBuilds(request, job);
+      } else if(path.startsWith("/build/")) {
+        _readAsString(request).then((String data) {
+          var jsonData = JSON.parse(data);
           
+          HttpResponse response = request.response;
+          response..write(JSON.stringify({"build_id": "123"}))
+          ..close();
+
+          _gitRunner.gitClone(jsonData["git_url"]);
+        });
       } else {
-        HttpResponse response = request.response;
-        final String file= path == '/' ? '/index.html' : path;
-        
-        String filePath = basePath.append(file).canonicalize().toNativePath();
-        print(filePath);
-        if(!filePath.startsWith(basePath.toNativePath())){
-          _send404(request, response, filePath);
-        } else {
-          final File file = new File(filePath);
-          file.exists().then((bool found) {
-            if (found) {
-              print("200 - ${path} - $filePath");
-              file.openRead().pipe(response);
-            } else {
-              _send404(request, response, filePath);
-            }
-          });
-        }
+        _staticFileHandler(basePath, request);
       }
     });
   }, onError: (error) => print("Failed to start server: $error"));
+}
+
+Future<String> _readAsString(HttpRequest request) {
+  // WTF!!!
+  Completer completer = new Completer();
+  StringBuffer s = new StringBuffer(); 
+  request.transform(new StringDecoder())
+    .listen((String value) => s.write(value))
+    ..onDone(() => completer.complete(s.toString()))
+    ..onError((error) => completer.completeError(error.error, error.stackTrace));
+  return completer.future;
+}
+
+void _showConfig(HttpRequest request) {
+  var data = {
+              "host": _config.host,
+              "port": _config.port,
+              "basePath": _config.basePath
+  };
+  
+  HttpResponse response = request.response;
+  response.write(data.toString());
+  response.close();
+}
+
+void _getBuilds(HttpRequest request, String job) {
+  var writeResponse = (List builds) => request.response
+      ..write(builds.toString())
+      ..close();
+  
+  if(job.isEmpty){
+    _buildDao.all().then(writeResponse);
+  } else {
+    _buildDao.findByJob(job).then(writeResponse);
+  }
+}
+
+void _staticFileHandler(Path basePath, HttpRequest request) {
+  HttpResponse response = request.response;
+  final String file= request.uri.path == '/' ? '/index.html' : request.uri.path;
+  
+  String filePath = basePath.append(file).canonicalize().toNativePath();
+  print(filePath);
+  if(!filePath.startsWith(basePath.toNativePath())){
+    _send404(request, response, filePath);
+  } else {
+    final File file = new File(filePath);
+    file.exists().then((bool found) {
+      if (found) {
+        print("200 - ${request.uri.path} - $filePath");
+        file.openRead().pipe(response);
+      } else {
+        _send404(request, response, filePath);
+      }
+    });
+  }
 }
 
