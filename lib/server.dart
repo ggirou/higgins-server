@@ -17,7 +17,7 @@ startServer(Configuration configuration) {
   print("Lauching Web Server, rendering files from $basePath");
   _startServer(basePath, _config.host, _config.port);
   print("Server running...");
-  initMongo(_config.mongoDbUri);
+  initMongo(_config.mongoDbUri, false);
   _buildDao = new BuildDao();
   _gitRunner = new GitRunner(_config.gitExecutablePath);
 }
