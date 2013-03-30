@@ -26,7 +26,7 @@ class Build extends PersistentObject {
   
   Build();
   
-  Build.from(buildId, job, status){
+  Build.from(buildId, job, status){// Sugar not working....
     this.buildId = buildId;
     this.job = job;
     this.status = status;

@@ -5,7 +5,6 @@ import 'package:unittest/unittest.dart';
 import 'package:unittest/matcher.dart' as m;
 import 'package:higgins_server/higgins_server.dart';
 
-
 const MONGO_URL = "mongodb://localhost";
 
 BuildDao buildDao ;
@@ -14,36 +13,27 @@ main(){
   group('Mongo test', () {
     test('Just connect', () {
       _setUp()
-        .then((expectAsync1((bool success) {
-            expect(success, isTrue);
-        })))
+        .then((expectAsync1((bool success)  => expect(success, isTrue) )))
         .then((_) => _tearDown());
     });
-    test('Should find all', () {
-      _setUp()
-        .then((_) => buildDao.all())
-        .then((expectAsync1((List result) {
-          expect(result.length, equals(3));
-        })))
-        .then((_) => _tearDown());
-    });
-    test('Should find jobs by jobname', () {
-      _setUp()
-        .then((_) => buildDao.findByJob("higgins-web"))
-        .then((expectAsync1((List result) {
-          expect(result.length, equals(2));
-        })))
-        .then((_) => _tearDown());
-    });
-    test('Should find nothing', () {
-      _setUp()
-        .then((_) => buildDao.findByJob("nonExist"))
-        .then((expectAsync1((List result) {
-          expect(result, isEmpty); 
-        })))
-        .then((_) => _tearDown());
-    });   
+    
+    test('Should find all', () => _wrapFutureMethodTest(() => buildDao.all(),
+                            (List result) => expect(result.length, equals(3)) ));
+    
+    test('Should find jobs by jobname', () => _wrapFutureMethodTest(() => buildDao.findByJob("higgins-web"),
+                            (List result) => expect(result.length, equals(2)) ));
+    
+    test('Should find nothing', () => _wrapFutureMethodTest(() => buildDao.findByJob("nonExist"),
+                            (List result) => expect(result, isEmpty) ));    
+    
   });
+}
+
+_wrapFutureMethodTest(future, Function assertions){
+  _setUp()
+  .then((_) => future())
+  .then((expectAsync1((result) => assertions(result))))
+  .then((_) => _tearDown());  
 }
 
 Future<bool> _setUp(){
