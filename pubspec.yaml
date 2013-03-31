@@ -3,6 +3,7 @@ version: 0.4.2
 author: The Pink Team
 description: Server part of the Higgins CI tool
 dependencies:
-  unittest: '<0.4.3'
   objectory: 0.1.2
+dev_dependencies:
+  unittest: '<0.4.3'
   dartmocks: 0.3.6
