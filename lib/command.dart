@@ -1,13 +1,16 @@
 part of higgins_server;
 
-List<MessageBox> _commandIsolates = new List();
+int _commandIndex = 0;
+Map<int, MessageBox> _commandIsolates = new Map();
 
 int runCommand(Command command) {
   IsolateSink sink = streamSpawnFunction(_runCommand);
   var mb = new MessageBox();
   sink.add([command, mb.sink]);
-  _commandIsolates.add(mb);
-  return _commandIsolates.length - 1;
+  sink.close();
+  int index = _commandIndex++;
+  _commandIsolates[index] = mb;
+  return index;
 }
 
 _runCommand() {
@@ -18,9 +21,11 @@ _runCommand() {
   });
 }
 
-// Quel est l'impact du broadcast en mémoire ? 
-Stream<String> getCommand(int isolateId) =>
-    isolateId < _commandIsolates.length ? _commandIsolates[isolateId].stream.asBroadcastStream() : null;
+Stream<String> getCommand(int isolateId) => 
+    _commandIsolates.containsKey(isolateId) ? _commandIsolates[isolateId].stream : null;
+
+Stream<String> consumeCommand(int isolateId) =>
+  _commandIsolates.containsKey(isolateId) ? _commandIsolates.remove(isolateId).stream : null;
 
 abstract class Command {
   Stream<String> start();
@@ -93,7 +98,9 @@ class BuildCommand extends CommandsSequence {
   
   Stream<String> start() {
     StreamController<String> output = new StreamController();
-    new Directory(workingDirectory).create(recursive: true).then((_) => super.start().listen(output.add, onError: output.addError, onDone: output.close));
+    new Directory(workingDirectory).create(recursive: true)
+      .then((_) => super.start().listen(output.add, onError: output.addError, onDone: output.close))
+      .catchError(output.addError);
     return output.stream;
   }
 }

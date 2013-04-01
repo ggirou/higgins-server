@@ -43,16 +43,21 @@ _startServer(Path basePath, String ip, int port) {
           var jsonData = JSON.parse(data);
 
           var randomId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);
-          var build = new BuildCommand.fromGit("${configuration.buildDir}$randomId/", jsonData["git_url"], configuration: configuration);
-          int buildId = runCommand(build);
-
-          HttpResponse response = request.response;
-          response..write(JSON.stringify({"build_id": buildId}))
-          ..close();
-          
-          // TODO: to remove, used for debugging
-          var commandStream = getCommand(buildId);
-          commandStream.listen(print, onError: print, onDone: () => print("Finished"));
+          String workingDirectory = "${configuration.buildDir}$randomId/";
+          new Directory(workingDirectory).create(recursive: true)
+          .then((_) {
+            var build = new GitCommand.clone(jsonData["git_url"], gitExecutablePath: configuration.gitExecutablePath)..workingDirectory = workingDirectory;
+//          var build = new BuildCommand.fromGit(workingDirectory, jsonData["git_url"], configuration: configuration);
+            int buildId = runCommand(build);
+            
+            HttpResponse response = request.response;
+            response..write(JSON.stringify({"build_id": buildId}))
+            ..close();
+            
+            // TODO: to remove, used for debugging
+            var commandStream = getCommand(buildId);
+            commandStream.listen(print, onError: print, onDone: () => print("Finished"));
+          });
         });
       } else {
         _staticFileHandler(basePath, request);

@@ -8,7 +8,7 @@ class CommandHandler {
     
     if(_paramRegExp.hasMatch(request.uri.path)) {
       int buildId = int.parse(_paramRegExp.firstMatch(request.uri.path)[1]);
-      commandStream = getCommand(buildId);
+      commandStream = consumeCommand(buildId);
     }
 
     if(commandStream != null) {
@@ -20,6 +20,8 @@ class CommandHandler {
       ..set(HttpHeaders.CACHE_CONTROL, 'no-cache')
       ..set(HttpHeaders.CONNECTION, 'keep-alive');
       
+      // TODO Hack: never retry
+//      response.writeString("retry: 999999");
       commandStream.transform(new LineTransformer())
         .transform(new StreamTransformer<String, String>(handleData: _eventSourceTransformer))
         .transform(new StringEncoder()).pipe(response);
