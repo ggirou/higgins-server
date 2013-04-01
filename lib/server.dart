@@ -3,10 +3,10 @@ part of higgins_server;
 BuildDao _buildDao;
 GitRunner _gitRunner;
 
-_send404(HttpRequest request, HttpResponse response, String filePath) {
+_send404(HttpRequest request, [String filePath = ""]) {
   print("404 - ${request.uri} - $filePath");
-  response.statusCode = HttpStatus.NOT_FOUND;
-  response.close();
+  request.response.statusCode = HttpStatus.NOT_FOUND;
+  request.response.close();
 }
 
 startServer() {
@@ -41,12 +41,13 @@ _startServer(Path basePath, String ip, int port) {
       } else if(path.startsWith("/build/")) {
         _readAsString(request).then((String data) {
           var jsonData = JSON.parse(data);
-          
-          HttpResponse response = request.response;
-          response..write(JSON.stringify({"build_id": "123"}))
-          ..close();
 
-          _gitRunner.gitClone(jsonData["git_url"]);
+          var build = new BuildCommand.fromGit(configuration.buildDir, jsonData["git_url"], configuration: configuration);
+          int buildId = runCommand(build);
+
+          HttpResponse response = request.response;
+          response..write(JSON.stringify({"build_id": buildId}))
+          ..close();
         });
       } else {
         _staticFileHandler(basePath, request);
@@ -97,7 +98,7 @@ void _staticFileHandler(Path basePath, HttpRequest request) {
   String filePath = basePath.append(file).canonicalize().toNativePath();
   print(filePath);
   if(!filePath.startsWith(basePath.toNativePath())){
-    _send404(request, response, filePath);
+    _send404(request, filePath);
   } else {
     final File file = new File(filePath);
     file.exists().then((bool found) {
@@ -105,7 +106,7 @@ void _staticFileHandler(Path basePath, HttpRequest request) {
         print("200 - ${request.uri.path} - $filePath");
         file.openRead().pipe(response);
       } else {
-        _send404(request, response, filePath);
+        _send404(request, filePath);
       }
     });
   }

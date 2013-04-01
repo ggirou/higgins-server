@@ -11,14 +11,20 @@
     "basePath" : "../higgins-web/web"
   },
 
+  "#" : "The build configuration",
+  "build" : {
+    "buildDir" : "/tmp/higgins/builds/"
+  },
+        
   "#" : "The MongoDb configuration",
   "mongoDb" : {
     "#" : "The MongoDb uri",
     "uri" : "mongodb://poc:pocd4rt@ds037857.mongolab.com:37857/poc"
   },
+  
   "#" : "The binaries paths",
   "bin" : {
     "#" : "The git executable path",
-    "gitExecutablePath" : "/usr/local/git/bin/git"
+    "gitExecutablePath" : "/usr/bin/git"
   }
 }

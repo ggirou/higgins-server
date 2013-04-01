@@ -6,6 +6,8 @@ int runCommand(Command command) {
   IsolateSink sink = streamSpawnFunction(_runCommand);
   var mb = new MessageBox();
   sink.add([command, mb.sink]);
+  _commandIsolates.add(mb);
+  return _commandIsolates.length - 1;
 }
 
 _runCommand() {
@@ -16,25 +18,22 @@ _runCommand() {
   });
 }
 
-Stream<String> getCommand(int isolateId) {
-  _commandIsolates[isolateId].stream;
-}
-
-pipeCommandInto(int isolateId, StreamConsumer<String, dynamic> output) {
-  // Quel est l'impact du broadcast en mémoire ?
-  _commandIsolates[isolateId].stream.asBroadcastStream().pipe(output);
-}
+// Quel est l'impact du broadcast en mémoire ? 
+Stream<String> getCommand(int isolateId) =>
+    isolateId < _commandIsolates.length ? _commandIsolates[isolateId].stream.asBroadcastStream() : null;
 
 abstract class Command {
   Stream<String> start();
 }
 
 class BaseCommand extends Command {
-  String executable;
+  final String executable;
   List<String> arguments;
   ProcessOptions options;
   
-  BaseCommand(this.executable, this.arguments, [this.options]);
+  BaseCommand(this.executable, [arguments, options]) :
+    this.arguments = ?arguments ? arguments : new List(),
+    this.options = ?options ? options : new ProcessOptions();
   
   Stream<String> start() {
     StreamController<String> output = new StreamController();
@@ -48,6 +47,9 @@ class BaseCommand extends Command {
     
     return output.stream;
   }
+  
+  String get workingDirectory => options.workingDirectory;
+  set workingDirectory(String  value) => options.workingDirectory = value;
 }
 
 class CommandsSequence extends Command {
@@ -76,4 +78,24 @@ class CommandsSequence extends Command {
 class GitCommand extends BaseCommand {
   GitCommand.clone(String gitRepoUrl, {String gitExecutablePath: "git"}) :
     super(gitExecutablePath, ["clone", gitRepoUrl]);
+}
+
+class PubCommand extends BaseCommand {
+  PubCommand.install({String pubExecutablePath: "pub"}) :
+    super(pubExecutablePath, ["install"]);
+}
+
+class BuildCommand extends CommandsSequence {
+  String workingDirectory;
+  
+  BuildCommand.fromGit(String workingDirectory, String gitRepoUrl, {Configuration configuration: const Configuration()}) : 
+    super.from([new GitCommand.clone(gitRepoUrl, gitExecutablePath: configuration.gitExecutablePath)..workingDirectory = workingDirectory]),
+    this.workingDirectory = workingDirectory {
+  }
+  
+  Stream<String> start() {
+    StreamController<String> output = new StreamController();
+    new Directory(workingDirectory).create(recursive: true).then((_) => super.start().listen(output.add).onDone(output.close));
+    return output.stream;
+  }
 }

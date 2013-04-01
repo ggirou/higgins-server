@@ -5,7 +5,7 @@ Configuration configuration;
 /**
  * Configuration for Higgins server.
  */
-abstract class Configuration {
+class Configuration {
   /** Listen for HTTP requests on the specified [host]. */
   String get host => "127.0.0.1";
 
@@ -15,6 +15,9 @@ abstract class Configuration {
 
   /** Base path for the default static file handler. */
   String get basePath => "";
+  
+  /** Build directory. */
+  String get buildDir => "/tmp/";
 
   /** The MongoDb uri. */
   String get mongoDbUri => "";
@@ -22,20 +25,30 @@ abstract class Configuration {
   /** The Path to the git executable binary */
   String get gitExecutablePath => "git";
   
-  Configuration();
-
+  const Configuration();
+  
   factory Configuration.fromFile(String json) {
     return new ConfigurationFile.parse(json);
   }
 }
 
-class ConfigurationFile extends Configuration {
-  String host = "127.0.0.1";
-  int port = 0;
-  String basePath = "";
-  String mongoDbUri = "";
-  String gitExecutablePath = "";
+class BaseConfiguration extends Configuration {
+  String host;
+  int port;
+  String basePath;
+  String buildDir;
+  String mongoDbUri;
+  String gitExecutablePath;
+  
+  BaseConfiguration([Configuration configuration = const Configuration()]) : host = configuration.host,
+      port = configuration.port,
+      basePath = configuration.basePath,
+      buildDir = configuration.buildDir,
+      mongoDbUri = configuration.mongoDbUri,
+      gitExecutablePath = configuration.gitExecutablePath;
+}
 
+class ConfigurationFile extends BaseConfiguration {
   ConfigurationFile.parse(String json, {Map<String, String> environment}) {
     if(!?environment) {
       environment = Platform.environment;
@@ -43,19 +56,23 @@ class ConfigurationFile extends Configuration {
     Map<String, Object> values = JSON.parse(json, _reviver(environment));
     if(values.containsKey("server")) {
       Map server = values["server"];
-      host = server.containsKey("host") ?  server["host"] : host;
-      port = server.containsKey("port") ?
+      this.host = server.containsKey("host") ?  server["host"] : this.host;
+      this.port = server.containsKey("port") ?
           server["port"] is String ? int.parse(server["port"]) : server["port"]
-          : port;
-      basePath = server.containsKey("basePath") ?  server["basePath"] : basePath;
+          : this.port;
+      this.basePath = server.containsKey("basePath") ?  server["basePath"] : this.basePath;
+    }
+    if(values.containsKey("build")) {
+      Map build = values["build"];
+      this.buildDir = build.containsKey("buildDir") ?  build["buildDir"] : this.buildDir;
     }
     if(values.containsKey("mongoDb")) {
       Map mongoDb = values["mongoDb"];
-      mongoDbUri = mongoDb.containsKey("uri") ?  mongoDb["uri"] : mongoDbUri;
+      this.mongoDbUri = mongoDb.containsKey("uri") ?  mongoDb["uri"] : this.mongoDbUri;
     }
     if(values.containsKey("bin")) {
       Map bin = values["bin"];
-      gitExecutablePath = bin.containsKey("gitExecutablePath") ?  bin["gitExecutablePath"] : gitExecutablePath;
+      this.gitExecutablePath = bin.containsKey("gitExecutablePath") ?  bin["gitExecutablePath"] : this.gitExecutablePath;
     }
   }
 

@@ -18,8 +18,9 @@ main() {
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(0));
       expect(output.basePath, m.equals(""));
+      expect(output.buildDir, m.equals("/tmp/"));
       expect(output.mongoDbUri, m.equals(""));
-      expect(output.gitExecutablePath, m.equals(""));
+      expect(output.gitExecutablePath, m.equals("git"));
     });
 
     test('parses a file with empty categories', () {
@@ -27,6 +28,7 @@ main() {
       var json = '''{
         "server" : { },
         "mongoDb" : { },
+        "build" : { },
         "bin" : { }
       }''';
 
@@ -37,8 +39,9 @@ main() {
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(0));
       expect(output.basePath, m.equals(""));
+      expect(output.buildDir, m.equals("/tmp/"));
       expect(output.mongoDbUri, m.equals(""));
-      expect(output.gitExecutablePath, m.equals(""));
+      expect(output.gitExecutablePath, m.equals("git"));
     });
 
     test('parses a simple file', () {
@@ -54,6 +57,9 @@ main() {
         "mongoDb" : {
           "uri" : "mongodb://username:password@host:port/database"
         },
+        "build" : {
+          "buildDir" : "/tmp/higgins/build/"
+        },
         "bin" : {
           "gitExecutablePath" : "/usr/local/git/bin/git"
         }
@@ -66,6 +72,7 @@ main() {
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(666));
       expect(output.basePath, m.equals("../web/web"));
+      expect(output.buildDir, m.equals("/tmp/higgins/build/"));
       expect(output.mongoDbUri, m.equals("mongodb://username:password@host:port/database"));
       expect(output.gitExecutablePath, m.equals("/usr/local/git/bin/git"));
     });
@@ -81,6 +88,9 @@ main() {
         "mongoDb" : {
           "uri" : "mongodb://$MONGODB_USERNAME:$MONGODB_PASSWORD@host:port/database"
         },
+        "build" : {
+          "buildDir" : "$TMPDIR"
+        },
         "bin" : {
           "gitExecutablePath" : "$GIT_EXECUTABLE_PATH"
         }
@@ -89,6 +99,7 @@ main() {
         "HOST": "192.168.0.1",
         "PORT": "42",
         "BASE_PATH": "xxx/yyy",
+        "TMPDIR": "/tmp/dir/",
         "MONGODB_USERNAME": "myusername",
         "MONGODB_PASSWORD": "mypassword",
         "GIT_EXECUTABLE_PATH": "/usr/local/git/bin/",
@@ -101,6 +112,7 @@ main() {
       expect(output.host, m.equals("192.168.0.1"));
       expect(output.port, m.equals(42));
       expect(output.basePath, m.equals("xxx/yyy"));
+      expect(output.buildDir, m.equals("/tmp/dir/"));
       expect(output.mongoDbUri, m.equals("mongodb://myusername:mypassword@host:port/database"));
       expect(output.gitExecutablePath, m.equals("/usr/local/git/bin/"));
     });
