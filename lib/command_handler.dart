@@ -4,22 +4,25 @@ class CommandHandler {
   static final RegExp _paramRegExp = new RegExp("/(\\d+)/\$");
   
   handler(HttpRequest request) {
+    Stream<String> commandStream = null;
+    
     if(_paramRegExp.hasMatch(request.uri.path)) {
-      print("200 - ${request.uri}");
-
       int buildId = int.parse(_paramRegExp.firstMatch(request.uri.path)[1]);
+      commandStream = getCommand(buildId);
+    }
 
+    if(commandStream != null) {
+      print("200 - ${request.uri}");
+      
       HttpResponse response = request.response;
       response.headers
       ..set(HttpHeaders.CONTENT_TYPE, 'text/event-stream')
       ..set(HttpHeaders.CACHE_CONTROL, 'no-cache')
       ..set(HttpHeaders.CONNECTION, 'keep-alive');
       
-      getCommand(buildId).transform(new LineTransformer())
+      commandStream.transform(new LineTransformer())
         .transform(new StreamTransformer<String, String>(handleData: _eventSourceTransformer))
         .transform(new StringEncoder()).pipe(response);
-      
-//      runSocketCommand(response);
     } else {
       _send404(request);
     }
@@ -33,6 +36,8 @@ class CommandHandler {
   }
 }
 
+// TODO: clean
+/*
 runSocketCommand(StreamConsumer<List<int>, dynamic> output) {
   IsolateSink sink = streamSpawnFunction(_runSocketCommand);
   var mb = new MessageBox();
@@ -73,3 +78,4 @@ Stream<String> processCommand() {
   
   return output.stream;
 }
+*/

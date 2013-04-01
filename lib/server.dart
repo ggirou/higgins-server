@@ -42,12 +42,17 @@ _startServer(Path basePath, String ip, int port) {
         _readAsString(request).then((String data) {
           var jsonData = JSON.parse(data);
 
-          var build = new BuildCommand.fromGit(configuration.buildDir, jsonData["git_url"], configuration: configuration);
+          var randomId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);
+          var build = new BuildCommand.fromGit("${configuration.buildDir}$randomId/", jsonData["git_url"], configuration: configuration);
           int buildId = runCommand(build);
 
           HttpResponse response = request.response;
           response..write(JSON.stringify({"build_id": buildId}))
           ..close();
+          
+          // TODO: to remove, used for debugging
+          var commandStream = getCommand(buildId);
+          commandStream.listen(print, onError: print, onDone: () => print("Finished"));
         });
       } else {
         _staticFileHandler(basePath, request);

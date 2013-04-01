@@ -14,7 +14,7 @@ _runCommand() {
   stream.listen((List isolateArgs) {
     Command command = isolateArgs[0];
     IsolateSink output = isolateArgs[1];
-    command.start().listen(output.add).onDone(output.close);
+    command.start().listen(output.add, onError: output.addError, onDone: output.close);
   });
 }
 
@@ -41,9 +41,9 @@ class BaseCommand extends Command {
     output..add("\$ ")..add(executable)..add(" ")..add(arguments.join(" "))..add("\n");
     Process.start(executable, arguments, options).then((Process p) {
       StringDecoder decoder = new StringDecoder();
-      p.stderr.transform(decoder).listen(output.add);
-      p.stdout.transform(decoder).listen(output.add).onDone(output.close);
-    });
+      p.stderr.transform(decoder).listen(output.add, onError: output.addError);
+      p.stdout.transform(decoder).listen(output.add, onError: output.addError, onDone: output.close);
+    }).catchError(output.addError);
     
     return output.stream;
   }
@@ -64,12 +64,10 @@ class CommandsSequence extends Command {
     Future.forEach(commands, (Command c) {
       Completer completer = new Completer(); 
       
-      c.start()
-      .listen(output.add)
-      .onDone(completer.complete);
+      c.start().listen(output.add, onError: completer.completeError, onDone: completer.complete);
       
       return completer.future;
-    }).then((_) => output.close());
+    }).catchError(output.addError).whenComplete(output.close);
     
     return output.stream;
   }
@@ -95,7 +93,7 @@ class BuildCommand extends CommandsSequence {
   
   Stream<String> start() {
     StreamController<String> output = new StreamController();
-    new Directory(workingDirectory).create(recursive: true).then((_) => super.start().listen(output.add).onDone(output.close));
+    new Directory(workingDirectory).create(recursive: true).then((_) => super.start().listen(output.add, onError: output.addError, onDone: output.close));
     return output.stream;
   }
 }
