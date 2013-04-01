@@ -1,7 +1,6 @@
 part of higgins_server;
 
 BuildDao _buildDao;
-GitRunner _gitRunner;
 
 _send404(HttpRequest request, [String filePath = ""]) {
   print("404 - ${request.uri} - $filePath");
@@ -17,7 +16,6 @@ startServer() {
   print("Server running...");
   initMongo(configuration.mongoDbUri);
   _buildDao = new BuildDao();
-  _gitRunner = new GitRunner(gitExecutablePath: configuration.gitExecutablePath);
 }
 
 _startServer(Path basePath, String ip, int port) {
