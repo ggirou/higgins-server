@@ -17,11 +17,7 @@ _runCommand() {
   stream.listen((List isolateArgs) {
     Command command = isolateArgs[0];
     IsolateSink output = isolateArgs[1];
-    command.start().listen((v) {
-        output.add(v);
-    }, 
-        onError: print, onDone: output.close);
-    // output.addError
+    command.start().listen(output.add, onError: output.addError, onDone: output.close);
   });
 }
 
