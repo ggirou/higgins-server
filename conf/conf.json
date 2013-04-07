@@ -25,6 +25,8 @@
   "#" : "The binaries paths",
   "bin" : {
     "#" : "The git executable path",
-    "gitExecutablePath" : "/usr/bin/git"
+    "git" : "/usr/bin/git",
+    "#" : "The pub executable path",
+    "pub" : "$DART_SDK/bin/pub"
   }
 }

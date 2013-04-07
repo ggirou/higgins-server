@@ -24,6 +24,9 @@ class Configuration {
 
   /** The Path to the git executable binary */
   String get gitExecutablePath => "git";
+
+  /** The Path to the pub executable binary */
+  String get pubExecutablePath => "pub";
   
   const Configuration();
   
@@ -39,13 +42,15 @@ class BaseConfiguration extends Configuration {
   String buildDir;
   String mongoDbUri;
   String gitExecutablePath;
+  String pubExecutablePath;
   
   BaseConfiguration([Configuration configuration = const Configuration()]) : host = configuration.host,
       port = configuration.port,
       basePath = configuration.basePath,
       buildDir = configuration.buildDir,
       mongoDbUri = configuration.mongoDbUri,
-      gitExecutablePath = configuration.gitExecutablePath;
+      gitExecutablePath = configuration.gitExecutablePath,
+      pubExecutablePath = configuration.pubExecutablePath;
 }
 
 class ConfigurationFile extends BaseConfiguration {
@@ -72,7 +77,8 @@ class ConfigurationFile extends BaseConfiguration {
     }
     if(values.containsKey("bin")) {
       Map bin = values["bin"];
-      this.gitExecutablePath = bin.containsKey("gitExecutablePath") ?  bin["gitExecutablePath"] : this.gitExecutablePath;
+      this.gitExecutablePath = bin.containsKey("git") ?  bin["git"] : this.gitExecutablePath;
+      this.pubExecutablePath = bin.containsKey("pub") ?  bin["pub"] : this.pubExecutablePath;
     }
   }
 

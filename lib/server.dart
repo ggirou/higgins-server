@@ -79,7 +79,10 @@ void _showConfig(HttpRequest request) {
   var data = {
               "host": configuration.host,
               "port": configuration.port,
-              "basePath": configuration.basePath
+              "basePath": configuration.basePath,
+              "buildDir": configuration.buildDir,
+              "gitExecutablePath": configuration.gitExecutablePath,
+              "pubExecutablePath": configuration.pubExecutablePath
   };
   
   HttpResponse response = request.response;

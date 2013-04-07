@@ -17,7 +17,11 @@ _runCommand() {
   stream.listen((List isolateArgs) {
     Command command = isolateArgs[0];
     IsolateSink output = isolateArgs[1];
-    command.start().listen(output.add, onError: output.addError, onDone: output.close);
+    command.start().listen((v) {
+        output.add(v);
+    }, 
+        onError: print, onDone: output.close);
+    // output.addError
   });
 }
 
@@ -37,7 +41,7 @@ class BaseCommand extends Command {
   ProcessOptions options;
   
   BaseCommand(this.executable, [arguments, options]) :
-    this.arguments = ?arguments ? arguments : new List(),
+    this.arguments = ?arguments ? new List.from(arguments) : new List(),
     this.options = ?options ? options : new ProcessOptions();
   
   Stream<String> start() {
@@ -79,8 +83,12 @@ class CommandsSequence extends Command {
 }
 
 class GitCommand extends BaseCommand {
-  GitCommand.clone(String gitRepoUrl, {String gitExecutablePath: "git"}) :
-    super(gitExecutablePath, ["clone", gitRepoUrl]);
+  GitCommand.clone(String gitRepoUrl, {String gitExecutablePath: "git", String destinationDir}) :
+    super(gitExecutablePath, ["clone", gitRepoUrl]) {
+    if(?destinationDir) {
+      arguments.add(destinationDir);
+    }
+  }
 }
 
 class PubCommand extends BaseCommand {
@@ -92,7 +100,10 @@ class BuildCommand extends CommandsSequence {
   String workingDirectory;
   
   BuildCommand.fromGit(String workingDirectory, String gitRepoUrl, {Configuration configuration: const Configuration()}) : 
-    super.from([new GitCommand.clone(gitRepoUrl, gitExecutablePath: configuration.gitExecutablePath)..workingDirectory = workingDirectory]),
+    super.from([new GitCommand.clone(gitRepoUrl, 
+        gitExecutablePath: configuration.gitExecutablePath, 
+        destinationDir: workingDirectory)..workingDirectory = workingDirectory, 
+        new PubCommand.install(pubExecutablePath: configuration.pubExecutablePath)..workingDirectory = workingDirectory]),
     this.workingDirectory = workingDirectory {
   }
   

@@ -21,6 +21,7 @@ main() {
       expect(output.buildDir, m.equals("/tmp/"));
       expect(output.mongoDbUri, m.equals(""));
       expect(output.gitExecutablePath, m.equals("git"));
+      expect(output.pubExecutablePath, m.equals("pub"));
     });
 
     test('parses a file with empty categories', () {
@@ -42,6 +43,7 @@ main() {
       expect(output.buildDir, m.equals("/tmp/"));
       expect(output.mongoDbUri, m.equals(""));
       expect(output.gitExecutablePath, m.equals("git"));
+      expect(output.pubExecutablePath, m.equals("pub"));
     });
 
     test('parses a simple file', () {
@@ -61,7 +63,8 @@ main() {
           "buildDir" : "/tmp/higgins/build/"
         },
         "bin" : {
-          "gitExecutablePath" : "/usr/local/git/bin/git"
+          "git" : "/usr/bin/git",
+          "pub" : "/usr/bin/pub"
         }
       }''';
 
@@ -74,7 +77,8 @@ main() {
       expect(output.basePath, m.equals("../web/web"));
       expect(output.buildDir, m.equals("/tmp/higgins/build/"));
       expect(output.mongoDbUri, m.equals("mongodb://username:password@host:port/database"));
-      expect(output.gitExecutablePath, m.equals("/usr/local/git/bin/git"));
+      expect(output.gitExecutablePath, m.equals("/usr/bin/git"));
+      expect(output.pubExecutablePath, m.equals("/usr/bin/pub"));
     });
 
     test('parses a file with environment variables', () {
@@ -92,7 +96,8 @@ main() {
           "buildDir" : "$TMPDIR"
         },
         "bin" : {
-          "gitExecutablePath" : "$GIT_EXECUTABLE_PATH"
+          "git" : "$GIT_EXECUTABLE_PATH",
+          "pub" : "$DART_SDK/bin/pub"
         }
       }''';
       var environment = {
@@ -102,7 +107,8 @@ main() {
         "TMPDIR": "/tmp/dir/",
         "MONGODB_USERNAME": "myusername",
         "MONGODB_PASSWORD": "mypassword",
-        "GIT_EXECUTABLE_PATH": "/usr/local/git/bin/",
+        "GIT_EXECUTABLE_PATH": "/usr/bin/git",
+        "DART_SDK": "/usr/local/dart-sdk",
       };
 
       // WHEN
@@ -114,7 +120,8 @@ main() {
       expect(output.basePath, m.equals("xxx/yyy"));
       expect(output.buildDir, m.equals("/tmp/dir/"));
       expect(output.mongoDbUri, m.equals("mongodb://myusername:mypassword@host:port/database"));
-      expect(output.gitExecutablePath, m.equals("/usr/local/git/bin/"));
+      expect(output.gitExecutablePath, m.equals("/usr/bin/git"));
+      expect(output.pubExecutablePath, m.equals("/usr/local/dart-sdk/bin/pub"));
     });
   });
 }
