@@ -4,7 +4,7 @@ author: The Pink Team
 description: Server part of the Higgins CI tool
 dependencies:
   objectory: 0.1.2
-  route: '<0.4.2'
+  route: '0.4.2'
 dev_dependencies:
   unittest: '<0.4.3'
   dartmocks: 0.3.6
