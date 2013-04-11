@@ -10,6 +10,8 @@ const MONGO_URL = "mongodb://localhost";
 BuildDao buildDao ;
 BuildReportDao buildReportDao;
 
+// FIXME bof bof
+var reportId;
 BuildReport report;
 
 main(){
@@ -31,6 +33,15 @@ main(){
     
     test('BuildReport : Should find by id', () => _wrapFutureMethodTest(() => buildReportDao.findById(report.id),
                             (BuildReport result) => expect(result, equals(report)) ));
+
+    test('BuildReport : Should not find and return null when incorrect id', () => _wrapFutureMethodTest(() => buildReportDao.findById(BuildReport.generateId()),
+                            (BuildReport result) => expect(result, isNull)));    
+    
+    test('BuildReport : Save with specific Id', () {
+        expect(reportId, isNotNull);
+        _wrapFutureMethodTest(() => buildReportDao.findById(reportId),
+                                    (BuildReport result) => expect(result, isNotNull));
+    });    
     
   });
 }
@@ -59,6 +70,8 @@ _injectData(){
    new Build.from(3, "higgins-server", "SUCCESS").save();
    report = new BuildReport.fromData("Youpi");
    report.save();
+   reportId = BuildReport.generateId();
+   new BuildReport.fromData("It build !").saveWithId(reportId);
 }
 
 _tearDown(){
