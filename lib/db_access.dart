@@ -1,22 +1,31 @@
 part of higgins_server;
 
-
+/**
+ * Initialize and start Mongo connexion with objectory.
+ */
 Future<bool> initMongo(String url, {bool dropCollectionsOnStartup: false}){
   print("Start mongo with $url");
   objectory = new ObjectoryDirectConnectionImpl(url,_registerClasses, dropCollectionsOnStartup);
   return objectory.initDomainModel();
 }
 
+/**
+ * Close Mongo connexion.
+ */
 closeMongo(){
   print("Close mongo");
   objectory.close();
 }
 
-
+/**
+ * Register classes in objectory
+ */
 _registerClasses(){
   objectory.registerClass(Build.NAME, () => new Build()); 
+  objectory.registerClass(BuildReport.NAME, () => new BuildReport());
 }
 
+// TODO complete objetc
 class Build extends PersistentObject {
   
   static final String NAME = "Build";
@@ -45,16 +54,48 @@ class Build extends PersistentObject {
   
 }
 
+/**
+ * Report represent a build log report.
+ */
+class BuildReport extends PersistentObject {
+  
+  static final String NAME = "BuildReport";
+  static final String DATA_PARAM = "data";
+  
+  BuildReport();
+  
+  BuildReport.fromData(String data){// Sugar not working....
+    this.data = data;
+  }
+  
+  String get data => getProperty(DATA_PARAM);
+  set data(String value) => setProperty(DATA_PARAM, value); 
+  
+}
 
+
+/**
+ * Dao for Build.
+ */
 class BuildDao {
   
-  Future<List<PersistentObject>> all(){
-    return objectory.find(_where);
-  }
+  /**
+   * Find all build.
+   */
+  Future<List<PersistentObject>> all() => objectory.find(_where);
   
-  Future<List<PersistentObject>> findByJob(String jobName){
-    return objectory.find(_where.eq(Build.JOB_PARAM, jobName));
-  }
+  /**
+   * Find build by jobName
+   */
+  Future<List<PersistentObject>> findByJob(String jobName) => objectory.find(_where.eq(Build.JOB_PARAM, jobName));
+  
+  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(Build.NAME);
+  
+}
+
+class BuildReportDao {
+  
+  Future<BuildReport> findById(ObjectId id) => objectory.findOne(_where.id(id));
   
   ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(Build.NAME);
   
