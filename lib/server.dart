@@ -21,9 +21,6 @@ startServer() {
 _startServer(Path basePath, String ip, int port) {
   HttpServer.bind(ip, port).then((HttpServer server) {
     print('Server started on: http://$ip:$port');
-    var configPathMatching = (HttpRequest request) => request.uri.path.startsWith("/config/");
-    var commandPathMatching = (HttpRequest request) => request.uri.path.startsWith("/command/");
-    var buildPathMatching = (HttpRequest request) => request.uri.path.startsWith("/builds/");
     server.listen((HttpRequest request) {
       var path = request.uri.path;
       print("${request.method} - ${path}");
@@ -31,25 +28,16 @@ _startServer(Path basePath, String ip, int port) {
       if(path.startsWith("/config/")) {
         _showConfig(request);
       } else if(path.startsWith("/command/")) {
-        // String build = path.substring(9);
         new CommandHandler().handler(request);
       } else if(path.startsWith("/builds/")) {
         String job = path.substring(8);
         _getBuilds(request, job);
       } else if(path.startsWith("/build/")) {
         _readAsString(request).then((String data) {
-          var jsonData = JSON.parse(data);
-
-          var randomId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);
-          String workingDirectory = "${configuration.buildDir}$randomId/";
-          new Directory(workingDirectory).create(recursive: true)
-          .then((_) {
-            var build = new BuildCommand.fromGit(workingDirectory, jsonData["git_url"], configuration: configuration);
-            int buildId = runCommand(build);
-            
-            HttpResponse response = request.response;
-            response..write(JSON.stringify({"build_id": buildId}))
-            ..close();
+            triggerBuild(data).then((String buildResult){
+              HttpResponse response = request.response;
+              response..write(buildResult)
+              ..close();
           });
         });
       } else {
@@ -57,6 +45,24 @@ _startServer(Path basePath, String ip, int port) {
       }
     });
   }, onError: (error) => print("Failed to start server: $error"));
+}
+
+Future<String> triggerBuild(String data){
+  Completer completer = new Completer();
+  
+  var jsonData = JSON.parse(data);
+
+  var randomId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);
+  String workingDirectory = "${configuration.buildDir}$randomId/";
+  new Directory(workingDirectory).create(recursive: true)
+  .then((_) {
+    var build = new BuildCommand.fromGit(workingDirectory, jsonData["git_url"], configuration: configuration);
+    int buildId = runCommand(build);
+    
+    completer.complete(JSON.stringify({"build_id": buildId}));
+  });
+    
+   return completer.future;
 }
 
 Future<String> _readAsString(HttpRequest request) {
