@@ -7,3 +7,4 @@ dependencies:
 dev_dependencies:
   unittest: '<0.4.3'
   dartmocks: 0.3.6
+  route: '<0.4.2'
