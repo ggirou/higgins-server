@@ -5,15 +5,16 @@ Map<String, MessageBox> _commandIsolates = new Map();
 runCommand(String buildId, Command command) {
   IsolateSink sink = streamSpawnFunction(_runCommand);
   var mb = new MessageBox();
-  sink.add([command, mb.sink]);
+  sink.add([buildId, command, mb.sink]);
   sink.close();
   _commandIsolates[buildId] = mb;
 }
 
 _runCommand() {
   stream.listen((List isolateArgs) {
-    Command command = isolateArgs[0];
-    IsolateSink output = isolateArgs[1];
+    String buildId = isolateArgs[0];
+    Command command = isolateArgs[1];
+    IsolateSink output = isolateArgs[2];
     command.start().listen(output.add, onError: output.addError, onDone: output.close);
   });
 }
