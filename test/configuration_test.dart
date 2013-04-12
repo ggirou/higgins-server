@@ -18,7 +18,7 @@ main() {
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(0));
       expect(output.basePath, m.equals(""));
-      expect(output.buildDir, m.equals("/tmp/"));
+      expect(output.buildDir, m.equals("/tmp"));
       expect(output.mongoDbUri, m.equals(""));
       expect(output.gitExecutablePath, m.equals("git"));
       expect(output.pubExecutablePath, m.equals("pub"));
@@ -40,7 +40,7 @@ main() {
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(0));
       expect(output.basePath, m.equals(""));
-      expect(output.buildDir, m.equals("/tmp/"));
+      expect(output.buildDir, m.equals("/tmp"));
       expect(output.mongoDbUri, m.equals(""));
       expect(output.gitExecutablePath, m.equals("git"));
       expect(output.pubExecutablePath, m.equals("pub"));
@@ -60,7 +60,7 @@ main() {
           "uri" : "mongodb://username:password@host:port/database"
         },
         "build" : {
-          "buildDir" : "/tmp/higgins/build/"
+          "buildDir" : "/tmp/higgins/build"
         },
         "bin" : {
           "git" : "/usr/bin/git",
@@ -75,7 +75,7 @@ main() {
       expect(output.host, m.equals("127.0.0.1"));
       expect(output.port, m.equals(666));
       expect(output.basePath, m.equals("../web/web"));
-      expect(output.buildDir, m.equals("/tmp/higgins/build/"));
+      expect(output.buildDir, m.equals("/tmp/higgins/build"));
       expect(output.mongoDbUri, m.equals("mongodb://username:password@host:port/database"));
       expect(output.gitExecutablePath, m.equals("/usr/bin/git"));
       expect(output.pubExecutablePath, m.equals("/usr/bin/pub"));
@@ -104,7 +104,7 @@ main() {
         "HOST": "192.168.0.1",
         "PORT": "42",
         "BASE_PATH": "xxx/yyy",
-        "TMPDIR": "/tmp/dir/",
+        "TMPDIR": "/tmp/dir",
         "MONGODB_USERNAME": "myusername",
         "MONGODB_PASSWORD": "mypassword",
         "GIT_EXECUTABLE_PATH": "/usr/bin/git",
@@ -118,7 +118,7 @@ main() {
       expect(output.host, m.equals("192.168.0.1"));
       expect(output.port, m.equals(42));
       expect(output.basePath, m.equals("xxx/yyy"));
-      expect(output.buildDir, m.equals("/tmp/dir/"));
+      expect(output.buildDir, m.equals("/tmp/dir"));
       expect(output.mongoDbUri, m.equals("mongodb://myusername:mypassword@host:port/database"));
       expect(output.gitExecutablePath, m.equals("/usr/bin/git"));
       expect(output.pubExecutablePath, m.equals("/usr/local/dart-sdk/bin/pub"));

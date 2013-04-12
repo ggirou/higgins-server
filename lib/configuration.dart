@@ -17,7 +17,7 @@ class Configuration {
   String get basePath => "";
   
   /** Build directory. */
-  String get buildDir => "/tmp/";
+  String get buildDir => "/tmp";
 
   /** The MongoDb uri. */
   String get mongoDbUri => "";

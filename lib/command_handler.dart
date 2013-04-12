@@ -1,13 +1,13 @@
 part of higgins_server;
 
 class CommandHandler {
-  static final RegExp _paramRegExp = new RegExp("/(\\d+)/\$");
+  static final RegExp _paramRegExp = new RegExp("/([0-9a-fA-F]+)/\$");
   
   handler(HttpRequest request) {
     Stream<String> commandStream = null;
     
     if(_paramRegExp.hasMatch(request.uri.path)) {
-      int buildId = int.parse(_paramRegExp.firstMatch(request.uri.path)[1]);
+      String buildId = _paramRegExp.firstMatch(request.uri.path)[1];
       commandStream = consumeCommand(buildId);
     }
 

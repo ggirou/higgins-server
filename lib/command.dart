@@ -1,16 +1,13 @@
 part of higgins_server;
 
-int _commandIndex = 0;
-Map<int, MessageBox> _commandIsolates = new Map();
+Map<String, MessageBox> _commandIsolates = new Map();
 
-int runCommand(Command command) {
+runCommand(String buildId, Command command) {
   IsolateSink sink = streamSpawnFunction(_runCommand);
   var mb = new MessageBox();
   sink.add([command, mb.sink]);
   sink.close();
-  int index = _commandIndex++;
-  _commandIsolates[index] = mb;
-  return index;
+  _commandIsolates[buildId] = mb;
 }
 
 _runCommand() {
@@ -21,11 +18,11 @@ _runCommand() {
   });
 }
 
-Stream<String> getCommand(int isolateId) => 
-    _commandIsolates.containsKey(isolateId) ? _commandIsolates[isolateId].stream : null;
+Stream<String> getCommand(String buildId) => 
+    _commandIsolates.containsKey(buildId) ? _commandIsolates[buildId].stream.asBroadcastStream() : null;
 
-Stream<String> consumeCommand(int isolateId) =>
-  _commandIsolates.containsKey(isolateId) ? _commandIsolates.remove(isolateId).stream : null;
+Stream<String> consumeCommand(String buildId) =>
+  _commandIsolates.containsKey(buildId) ? _commandIsolates.remove(buildId).stream : null;
 
 abstract class Command {
   Stream<String> start();
