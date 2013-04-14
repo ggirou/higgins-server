@@ -21,11 +21,11 @@ main(){
     );
     
     test('Job : Should find a by name',
-      () => jobQuery.findByJob("higgins-web").then((List result) => expect(result.length, equals(1)))
+      () => jobQuery.findByJob("higgins-web").then((Job result) => expect(result, isNotNull))
     );    
     
     test('Job : Should find nothing when not exists', 
-      () => jobQuery.findByJob("nonExist").then((List result) => expect(result, isEmpty))
+      () => jobQuery.findByJob("nonExist").then((Job result) => expect(result, isNull))
     );  
     
     test('BuildReport : Should find by id',

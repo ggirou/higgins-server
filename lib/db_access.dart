@@ -184,7 +184,7 @@ class JobQuery {
   /**
    * Find build by jobName
    */
-  Future<List<PersistentObject>> findByJob(String jobName) => objectory.find(_where.eq(Job.NAME_PARAM, jobName));
+  Future<Job> findByJob(String jobName) => objectory.findOne(_where.eq(Job.NAME_PARAM, jobName));
   
   ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(Job.OBJECT_NAME);
   
