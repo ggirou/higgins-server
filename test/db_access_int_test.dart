@@ -55,7 +55,21 @@ main(){
                           () => report.save() ,
                           () => jobBuildReportQuery.findById(new ObjectId()),
                           (JobBuildReport result) => expect(result, isNull));
-                      }); 
+                      });
+    
+    test('BuildReport : Save with specific Id',
+         () {
+           ObjectId reportId = JobBuildReport.generateId();
+           var report = new JobBuildReport.fromData("Youpi");
+           _wrapFutureMethodTest(
+            () => report.saveWithId(reportId) ,
+            () => jobBuildReportQuery.findById(reportId),
+            (JobBuildReport result) {
+              expect(result, isNotNull);
+              expect(result, equals(report));
+            });
+     });
+    
   });
 }
 

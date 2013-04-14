@@ -54,7 +54,7 @@ Future<String> triggerBuild(String data){
     var jsonData = JSON.parse(data);
     
 //    var buildId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);
-    String buildId = BuildReport.generateId().toHexString();
+    String buildId = JobBuildReport.generateId().toHexString();
     String workingDirectory = "${configuration.buildDir}/$buildId/";
     var build = new BuildCommand.fromGit(workingDirectory, jsonData["git_url"], configuration: configuration);
     runCommand(buildId, build);
