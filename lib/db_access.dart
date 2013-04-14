@@ -160,11 +160,11 @@ class JobBuildReport extends PersistentObject {
   /**
    * Save with a specific id.
    */
-  saveWithId(ObjectId id){
+  Future saveWithId(ObjectId id){
     this.id = id;
     map["_id"] = id;
     objectory.addToCache(this);
-    objectory.insert(this);
+    return objectory.insert(this);
    }
    
   static ObjectId generateId() => objectory.generateId();
