@@ -17,42 +17,65 @@ main(){
     tearDown(() => _tearDown());
     
     test('Job : Should find all',
-      () => jobQuery.all().then((List result) => expect(result.length, equals(3)))
+      // When  
+      () => jobQuery.all().then(
+          // Then
+          (List result) => expect(result.length, equals(3)))
     );
     
     test('Job : Should find a by name',
-      () => jobQuery.findByJob("higgins-web").then((Job result) => expect(result, isNotNull))
+      // When  
+      () => jobQuery.findByJob("higgins-web").then(
+          // Then
+          (Job result) => expect(result, isNotNull))
     );    
     
     test('Job : Should find nothing when not exists', 
-      () => jobQuery.findByJob("nonExist").then((Job result) => expect(result, isNull))
+      // When  
+      () => jobQuery.findByJob("nonExist").then(
+          // Then
+          (Job result) => expect(result, isNull))
     );  
     
     test('BuildReport : Should find by id',
       () {
+        // Given
         var report = new JobBuildReport.fromData("Youpi");
-        report.save().then((_) => jobBuildReportQuery.findById(report.id))
-                     .then((JobBuildReport result) => expect(result, equals(report)));
+        report.save().then(
+            // When
+            (_) => jobBuildReportQuery.findById(report.id))
+                     .then(
+                         // Then
+                         (JobBuildReport result) => expect(result, equals(report)));
       }
     );    
   
     test('BuildReport : Should not find and return null when incorrect id', 
       () {
+        // Given
         var report = new JobBuildReport.fromData("Youpi");
-        report.save().then((_) => jobBuildReportQuery.findById(new ObjectId()))
+        // When
+        report.save().then(
+            // Then
+            (_) => jobBuildReportQuery.findById(new ObjectId()))
                      .then((JobBuildReport result) => expect(result, isNull));
       }
     );
     
     test('BuildReport : Save with specific Id',
       () {
+        // Given
         ObjectId reportId = JobBuildReport.generateId();
         var report = new JobBuildReport.fromData("Youpi");
-        report.saveWithId(reportId).then((_) => jobBuildReportQuery.findById(reportId))
-                                   .then((JobBuildReport result) {
-                                      expect(result, isNotNull);
-                                      expect(result, equals(report));
-                                    });
+        report.saveWithId(reportId).then(
+            // When
+            (_) => jobBuildReportQuery.findById(reportId))
+                                   .then(
+                                       // Then
+                                       (JobBuildReport result) {
+                                          expect(result, isNotNull);
+                                          expect(result, equals(report));
+                                       });
         }
       );    
 
