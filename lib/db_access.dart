@@ -114,7 +114,9 @@ class JobConfiguration extends EmbeddedPersistentObject {
   
 }
 
-// TODO use a "enum" for status ?
+const String STATUS_FAIL = "Fail";
+const String STATUS_SUCCESS = "Success";
+
 class JobBuild extends EmbeddedPersistentObject {
   
   static final String OBJECT_NAME = "JobBuild";
