@@ -4,15 +4,12 @@ import 'dart:async';
 import 'package:unittest/unittest.dart';
 import 'package:unittest/matcher.dart' as m;
 import 'package:higgins_server/higgins_server.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
 const MONGO_URL = "mongodb://localhost";
 
 BuildDao buildDao ;
 BuildReportDao buildReportDao;
-
-// FIXME bof bof
-var reportId;
-BuildReport report;
 
 main(){
   group('Mongo test', () {
@@ -22,33 +19,50 @@ main(){
         .then((_) => _tearDown());
     });
     
-    test('Build : Should find all', () => _wrapFutureMethodTest(() => buildDao.all(),
-                            (List result) => expect(result.length, equals(3)) ));
+    test('Build : Should find all',
+                    () => _wrapFutureMethodTest(
+                        () {},
+                        () => buildDao.all(),
+                        (List result) => expect(result.length, equals(3)) 
+                    ));
     
-    test('Build : Should find jobs by jobname', () => _wrapFutureMethodTest(() => buildDao.findByJob("higgins-web"),
-                            (List result) => expect(result.length, equals(2)) ));
+    test('Build : Should find jobs by jobname',
+                    () => _wrapFutureMethodTest(() {},
+                        () => buildDao.findByJob("higgins-web"),
+                        (List result) => expect(result.length, equals(2)) 
+                    ));
     
-    test('Build : Should find nothing', () => _wrapFutureMethodTest(() => buildDao.findByJob("nonExist"),
-                            (List result) => expect(result, isEmpty) )); 
+    test('Build : Should find nothing', 
+                    () => _wrapFutureMethodTest(               
+                        () {},
+                        () => buildDao.findByJob("nonExist"),
+                        (List result) => expect(result, isEmpty)
+                    )); 
     
-    test('BuildReport : Should find by id', () => _wrapFutureMethodTest(() => buildReportDao.findById(report.id),
-                            (BuildReport result) => expect(result, equals(report)) ));
+    test('BuildReport : Should find by id',
+                    () {
+                      var report = new BuildReport.fromData("Youpi");
+                      _wrapFutureMethodTest(
+                          () => report.save() ,
+                          () => buildReportDao.findById(report.id),
+                          (BuildReport result) => expect(result, equals(report)));
+                     });
 
-    test('BuildReport : Should not find and return null when incorrect id', () => _wrapFutureMethodTest(() => buildReportDao.findById(BuildReport.generateId()),
-                            (BuildReport result) => expect(result, isNull)));    
-    
-    test('BuildReport : Save with specific Id', () {
-        expect(reportId, isNotNull);
-        _wrapFutureMethodTest(() => buildReportDao.findById(reportId),
-                                    (BuildReport result) => expect(result, isNotNull));
-    });    
-    
+    test('BuildReport : Should not find and return null when incorrect id', 
+                    () {
+                      var report = new BuildReport.fromData("Youpi");
+                      _wrapFutureMethodTest(
+                          () => report.save() ,
+                          () => buildReportDao.findById(new ObjectId()),
+                          (BuildReport result) => expect(result, isNull));
+                      }); 
   });
 }
 
-_wrapFutureMethodTest(future, Function assertions){
+_wrapFutureMethodTest(initMethod, testMethod, Function assertions){
   _setUp()
-  .then((_) => future())
+  .then((_) => initMethod())
+  .then((_) => testMethod())
   .then((expectAsync1((result) => assertions(result))))
   .then((_) => _tearDown());  
 }
@@ -68,10 +82,6 @@ _injectData(){
    new Build.from(1, "higgins-web", "FAIL").save();
    new Build.from(2, "higgins-web", "SUCCESS").save();
    new Build.from(3, "higgins-server", "SUCCESS").save();
-   report = new BuildReport.fromData("Youpi");
-   report.save();
-   reportId = BuildReport.generateId();
-   new BuildReport.fromData("It build !").saveWithId(reportId);
 }
 
 _tearDown(){

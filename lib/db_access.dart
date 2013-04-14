@@ -71,15 +71,6 @@ class BuildReport extends PersistentObject {
   String get data => getProperty(DATA_PARAM);
   set data(String value) => setProperty(DATA_PARAM, value); 
   
-  saveWithId(ObjectId id){
-    this.id = id;
-    map["_id"] = id;
-    objectory.addToCache(this);
-    objectory.insert(this);
-  }
-  
-  static ObjectId generateId() => objectory.generateId();
-    
 }
 
 
