@@ -1,6 +1,7 @@
 part of higgins_server;
 
-BuildDao _buildDao;
+JobQuery _jobQuery;
+JobBuildReportQuery _jobBuildReportQuery;
 
 _send404(HttpRequest request, [String filePath = ""]) {
   print("404 - ${request.uri} - $filePath");
@@ -15,7 +16,8 @@ startServer() {
   _startServer(basePath, configuration.host, configuration.port);
   print("Server running...");
   initMongo(configuration.mongoDbUri);
-  _buildDao = new BuildDao();
+  _jobQuery = new JobQuery();
+  _jobBuildReportQuery = new JobBuildReportQuery();
 }
 
 _startServer(Path basePath, String ip, int port) {
@@ -97,9 +99,9 @@ void _getBuilds(HttpRequest request, String job) {
       ..close();
   
   if(job.isEmpty){
-    _buildDao.all().then(writeResponse);
+    _jobQuery.all().then(writeResponse);
   } else {
-    _buildDao.findByJob(job).then(writeResponse);
+    _jobQuery.findByJob(job).then(writeResponse);
   }
 }
 

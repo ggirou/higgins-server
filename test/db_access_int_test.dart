@@ -8,8 +8,8 @@ import 'package:mongo_dart/mongo_dart.dart';
 
 const MONGO_URL = "mongodb://localhost";
 
-BuildDao buildDao ;
-BuildReportDao buildReportDao;
+JobQuery jobQuery;
+JobBuildReportQuery jobBuildReportQuery;
 
 main(){
   group('Mongo test', () {
@@ -19,42 +19,42 @@ main(){
         .then((_) => _tearDown());
     });
     
-    test('Build : Should find all',
+    test('Job : Should find all',
                     () => _wrapFutureMethodTest(
                         () {},
-                        () => buildDao.all(),
+                        () => jobQuery.all(),
                         (List result) => expect(result.length, equals(3)) 
                     ));
     
-    test('Build : Should find jobs by jobname',
+    test('Job : Should find a by name',
                     () => _wrapFutureMethodTest(() {},
-                        () => buildDao.findByJob("higgins-web"),
-                        (List result) => expect(result.length, equals(2)) 
+                        () => jobQuery.findByJob("higgins-web"),
+                        (List result) => expect(result.length, equals(1)) 
                     ));
     
-    test('Build : Should find nothing', 
+    test('Job : Should find nothing when not exists', 
                     () => _wrapFutureMethodTest(               
                         () {},
-                        () => buildDao.findByJob("nonExist"),
+                        () => jobQuery.findByJob("nonExist"),
                         (List result) => expect(result, isEmpty)
                     )); 
     
     test('BuildReport : Should find by id',
                     () {
-                      var report = new BuildReport.fromData("Youpi");
+                      var report = new JobBuildReport.fromData("Youpi");
                       _wrapFutureMethodTest(
                           () => report.save() ,
-                          () => buildReportDao.findById(report.id),
-                          (BuildReport result) => expect(result, equals(report)));
+                          () => jobBuildReportQuery.findById(report.id),
+                          (JobBuildReport result) => expect(result, equals(report)));
                      });
 
     test('BuildReport : Should not find and return null when incorrect id', 
                     () {
-                      var report = new BuildReport.fromData("Youpi");
+                      var report = new JobBuildReport.fromData("Youpi");
                       _wrapFutureMethodTest(
                           () => report.save() ,
-                          () => buildReportDao.findById(new ObjectId()),
-                          (BuildReport result) => expect(result, isNull));
+                          () => jobBuildReportQuery.findById(new ObjectId()),
+                          (JobBuildReport result) => expect(result, isNull));
                       }); 
   });
 }
@@ -70,8 +70,8 @@ _wrapFutureMethodTest(initMethod, testMethod, Function assertions){
 Future<bool> _setUp(){
   Completer completer = new Completer();
   initMongo(MONGO_URL, dropCollectionsOnStartup: true).then((bool success) {
-    buildDao = new BuildDao();
-    buildReportDao = new BuildReportDao();
+    jobQuery = new JobQuery();
+    jobBuildReportQuery = new JobBuildReportQuery();
     _injectData();
     return  completer.complete(success);
   });
@@ -79,9 +79,9 @@ Future<bool> _setUp(){
 }
 
 _injectData(){
-   new Build.from(1, "higgins-web", "FAIL").save();
-   new Build.from(2, "higgins-web", "SUCCESS").save();
-   new Build.from(3, "higgins-server", "SUCCESS").save();
+  new Job.withName("higgins-web").save();
+  new Job.withName("higgins-server").save();
+  new Job.withName("higgins-heroku").save();
 }
 
 _tearDown(){

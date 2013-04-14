@@ -21,50 +21,135 @@ closeMongo(){
  * Register classes in objectory
  */
 _registerClasses(){
-  objectory.registerClass(Build.NAME, () => new Build()); 
-  objectory.registerClass(BuildReport.NAME, () => new BuildReport());
+  objectory.registerClass(Job.OBJECT_NAME, () => new Job()); 
+  objectory.registerClass(JobBuildReport.OBJECT_NAME, () => new JobBuildReport());
 }
 
-// TODO complete objetc
-class Build extends PersistentObject {
-  
-  static final String NAME = "Build";
-  static final String BUILD_ID_PARAM = "buildId";
-  static final String JOB_PARAM = "job";
-  static final String STATUS_PARAM = "status";
-  
-  Build();
-  
-  Build.from(buildId, job, status){// Sugar not working....
-    this.buildId = buildId;
-    this.job = job;
-    this.status = status;
-  }
-  
-  int get buildId => getProperty(BUILD_ID_PARAM);
-  set buildId(int value) => setProperty(BUILD_ID_PARAM, value);
-  
-  String get job => getProperty(JOB_PARAM);
-  set job(String value) => setProperty(JOB_PARAM, value); 
+/**
+ * Represent a Job
+ * 
+ * {
+ *  "_id": {
+ *      "$oid": "507e6b75e4b0b2834be2882e"
+ *  },
+ *  "name": "Dartlab",
+ *  "repository": {
+ *      "url": "git://github/dtc/ouille",
+ *      "branche": "master"
+ *  },
+ *  "configuration": {
+ *      "buildsHistorySize": 5
+ *  },
+ *  "builds": [
+ *      {
+ *          "number": 3,
+ *          "status": "stable",
+ *          "start": "2013-02-17T08:22:27.027Z",
+ *          "end": "2013-02-17T08:23:27.027Z"
+ *      },
+ *      {
+ *          "number": 2,
+ *          "status": "failed",
+ *          "start": "2013-02-17T08:20:01.027Z",
+ *          "end": "2013-02-17T08:20:03.027Z"
+ *      },
+ *      {
+ *          "number": 1,
+ *          "status": "unstable",
+ *          "start": "2013-02-17T07:20:01.027Z",
+ *          "end": "2013-02-17T07:20:31.027Z"
+ *      }
+ *    ]
+ *  }
+ */
+class Job extends PersistentObject {
 
+  static final String OBJECT_NAME = "Job";
+  static final String NAME_PARAM = "name";
+  static final String REPOSITORY_PARAM = "repository";
+  static final String CONFIGURATION__PARAM = "configuration";
+  static final String BUILD_PARAM = "builds";
+  static final String BUILD_ELEMENT_PARAM = "build";
+  
+  Job();
+  
+  Job.withName(String name){ // "this" sugar is failing
+    this.name = name;
+  }
+
+  String get name => getProperty(NAME_PARAM);
+  set name(String value) => setProperty(NAME_PARAM, value);
+  
+  String get repository => getProperty(REPOSITORY_PARAM);
+  set repository(String value) => setProperty(REPOSITORY_PARAM, value);
+  
+  String get configuration => getProperty(CONFIGURATION__PARAM);
+  set configuration(String value) => setProperty(CONFIGURATION__PARAM, value);
+  
+  List<JobBuild> get comments => new PersistentList<JobBuild>(this, BUILD_ELEMENT_PARAM, BUILD_PARAM);
+  
+}
+
+class JobRepository extends EmbeddedPersistentObject {
+
+  static final String OBJECT_NAME = "JobRepository";
+  static final String URL_PARAM = "url";
+  static final String BRANCH_PARAM = "branch";
+  
+  String get url => getProperty(URL_PARAM);
+  set url(String value) => setProperty(URL_PARAM, value);
+  
+  String get branch => getProperty(BRANCH_PARAM);
+  set branch(String value) => setProperty(BRANCH_PARAM, value);
+  
+}
+
+class JobConfiguration extends EmbeddedPersistentObject {
+
+  static final String OBJECT_NAME = "JobConfiguration";
+  static final String BUILD_HISTORY_SIZE_PARAM = "buildsHistorySize";
+  
+  int get url => getProperty(BUILD_HISTORY_SIZE_PARAM);
+  set url(int value) => setProperty(BUILD_HISTORY_SIZE_PARAM, value);
+  
+}
+
+// TODO use a "enum" for status ?
+class JobBuild extends EmbeddedPersistentObject {
+  
+  static final String OBJECT_NAME = "JobBuild";
+  static final String NUMBER_PARAM = "number";
+  static final String STATUS_PARAM = "status";
+  static final String START_PARAM = "start";
+  static final String END_PARAM = "end";
+  
+  JobBuild();
+  
+  int get number => getProperty(NUMBER_PARAM);
+  set number(int value) => setProperty(NUMBER_PARAM, value);
+  
   String get status => getProperty(STATUS_PARAM);
   set status(String value) => setProperty(STATUS_PARAM, value);
   
-  String toString() => "[buildId=$buildId job=$job status=$status]";
+  DateTime get start => getProperty(START_PARAM);
+  set start(DateTime value) => setProperty(START_PARAM, value);
+  
+  DateTime get end => getProperty(STATUS_PARAM);
+  set end(DateTime value) => setProperty(END_PARAM, value);  
   
 }
 
 /**
  * Report represent a build log report.
  */
-class BuildReport extends PersistentObject {
+class JobBuildReport extends PersistentObject {
   
-  static final String NAME = "BuildReport";
+  static final String OBJECT_NAME = "BuildReport";
   static final String DATA_PARAM = "data";
   
-  BuildReport();
+  JobBuildReport();
   
-  BuildReport.fromData(String data){// Sugar not working....
+  JobBuildReport.fromData(String data){// Sugar not working....
     this.data = data;
   }
   
@@ -75,9 +160,9 @@ class BuildReport extends PersistentObject {
 
 
 /**
- * Dao for Build.
+ * Queries for Job.
  */
-class BuildDao {
+class JobQuery {
   
   /**
    * Find all build.
@@ -87,16 +172,19 @@ class BuildDao {
   /**
    * Find build by jobName
    */
-  Future<List<PersistentObject>> findByJob(String jobName) => objectory.find(_where.eq(Build.JOB_PARAM, jobName));
+  Future<List<PersistentObject>> findByJob(String jobName) => objectory.find(_where.eq(Job.NAME_PARAM, jobName));
   
-  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(Build.NAME);
+  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(Job.OBJECT_NAME);
   
 }
 
-class BuildReportDao {
+/**
+ * Queries for JobBuildReport
+ */
+class JobBuildReportQuery {
   
-  Future<BuildReport> findById(ObjectId id) => objectory.findOne(_where.id(id));
+  Future<JobBuildReport> findById(ObjectId id) => objectory.findOne(_where.id(id));
   
-  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(Build.NAME);
+  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(JobBuildReport.OBJECT_NAME);
   
 }
