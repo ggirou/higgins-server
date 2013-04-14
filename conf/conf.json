@@ -13,7 +13,7 @@
 
   "#" : "The build configuration",
   "build" : {
-    "buildDir" : "/tmp/higgins/builds/"
+    "buildDir" : "/tmp/higgins/builds"
   },
         
   "#" : "The MongoDb configuration",

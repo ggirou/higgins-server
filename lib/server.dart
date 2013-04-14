@@ -50,21 +50,17 @@ _startServer(Path basePath, String ip, int port) {
 }
 
 Future<String> triggerBuild(String data){
-  Completer completer = new Completer();
-  
-  var jsonData = JSON.parse(data);
-
-  var randomId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);
-  String workingDirectory = "${configuration.buildDir}$randomId/";
-  new Directory(workingDirectory).create(recursive: true)
-  .then((_) {
+  return new Future.of(() {
+    var jsonData = JSON.parse(data);
+    
+//    var buildId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);
+    String buildId = BuildReport.generateId().toHexString();
+    String workingDirectory = "${configuration.buildDir}/$buildId/";
     var build = new BuildCommand.fromGit(workingDirectory, jsonData["git_url"], configuration: configuration);
-    int buildId = runCommand(build);
+    runCommand(buildId, build);
     
-    completer.complete(JSON.stringify({"build_id": buildId}));
+    return JSON.stringify({"build_id": buildId});
   });
-    
-   return completer.future;
 }
 
 Future<String> _readAsString(HttpRequest request) {
