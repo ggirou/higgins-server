@@ -50,7 +50,7 @@ _startServer(Path basePath, String ip, int port) {
 }
 
 Future<String> triggerBuild(String data){
-  return new Future.of(() {
+  return new Future(() {
     var jsonData = JSON.parse(data);
     
 //    var buildId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);

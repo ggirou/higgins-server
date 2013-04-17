@@ -30,7 +30,7 @@ class CommandHandler {
     }
   }
   
-  _eventSourceTransformer(String value, StreamSink<String> sink) {
+  _eventSourceTransformer(String value, EventSink<String> sink) {
     sink.add("data:");
     sink.add(value);
     sink.add("\n\n");
