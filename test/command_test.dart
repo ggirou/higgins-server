@@ -36,7 +36,7 @@ main() {
       
       Stream<String> output = new BaseCommand(executable, arguments).start();
       
-      output.reduce(new StringBuffer(), (sb, string) => sb..write(string)).then(expectAsync1((result) {
+      output.fold(new StringBuffer(), (sb, string) => sb..write(string)).then(expectAsync1((result) {
         expect(result.toString(), equals(expected));
       }));
     });
@@ -51,7 +51,7 @@ main() {
       
       Stream<String> output = new CommandsSequence.from(commands).start();
       
-      output.reduce(new StringBuffer(), (sb, string) => sb..write(string)).then(expectAsync1((result) {
+      output.fold(new StringBuffer(), (sb, string) => sb..write(string)).then(expectAsync1((result) {
         expect(result.toString(), equals(expected));
       }));
     });
