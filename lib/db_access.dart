@@ -124,6 +124,7 @@ class JobBuild extends EmbeddedPersistentObject {
   static final String STATUS_PARAM = "status";
   static final String START_PARAM = "start";
   static final String END_PARAM = "end";
+  static final String OUTPUT_ID_PARAM = "output_id";
   
   JobBuild();
   
@@ -138,6 +139,9 @@ class JobBuild extends EmbeddedPersistentObject {
   
   DateTime get end => getProperty(STATUS_PARAM);
   set end(DateTime value) => setProperty(END_PARAM, value);  
+  
+  ObjectId get output => getProperty(NUMBER_PARAM);
+  set output(ObjectId value) => setProperty(NUMBER_PARAM, value);
   
 }
 
