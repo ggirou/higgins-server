@@ -9,7 +9,7 @@ import 'package:mongo_dart/mongo_dart.dart';
 const MONGO_URL = "mongodb://localhost";
 
 JobQuery jobQuery;
-JobBuildReportQuery jobBuildReportQuery;
+BuildOutputQuery buildOutputQuery;
 
 main(){
   group('Mongo test', () {
@@ -40,39 +40,39 @@ main(){
     test('BuildReport : Should find by id',
       () {
         // Given
-        var report = new JobBuildReport.fromData("Youpi");
+        var report = new BuildOutput.fromData("Youpi");
         report.save().then(
             // When
-            (_) => jobBuildReportQuery.findById(report.id))
+            (_) => buildOutputQuery.findById(report.id))
                      .then(
                          // Then
-                         (JobBuildReport result) => expect(result, equals(report)));
+                         (BuildOutput result) => expect(result, equals(report)));
       }
     );    
   
     test('BuildReport : Should not find and return null when incorrect id', 
       () {
         // Given
-        var report = new JobBuildReport.fromData("Youpi");
+        var report = new BuildOutput.fromData("Youpi");
         // When
         report.save().then(
             // Then
-            (_) => jobBuildReportQuery.findById(new ObjectId()))
-                     .then((JobBuildReport result) => expect(result, isNull));
+            (_) => buildOutputQuery.findById(new ObjectId()))
+                     .then((BuildOutput result) => expect(result, isNull));
       }
     );
     
     test('BuildReport : Save with specific Id',
       () {
         // Given
-        ObjectId reportId = JobBuildReport.generateId();
-        var report = new JobBuildReport.fromData("Youpi");
+        ObjectId reportId = BuildOutput.generateId();
+        var report = new BuildOutput.fromData("Youpi");
         report.saveWithId(reportId).then(
             // When
-            (_) => jobBuildReportQuery.findById(reportId))
+            (_) => buildOutputQuery.findById(reportId))
                                    .then(
                                        // Then
-                                       (JobBuildReport result) {
+                                       (BuildOutput result) {
                                           expect(result, isNotNull);
                                           expect(result, equals(report));
                                        });
@@ -86,7 +86,7 @@ Future<bool> _setUp(){
   Completer completer = new Completer();
   initMongo(MONGO_URL, dropCollectionsOnStartup: true).then((bool success) {
     jobQuery = new JobQuery();
-    jobBuildReportQuery = new JobBuildReportQuery();
+    buildOutputQuery = new BuildOutputQuery();
     _injectData().then((_) => completer.complete(success));
   });
   return completer.future;

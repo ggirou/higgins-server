@@ -1,7 +1,7 @@
 part of higgins_server;
 
 JobQuery _jobQuery;
-JobBuildReportQuery _jobBuildReportQuery;
+BuildOutputQuery _buildOutput;
 
 _send404(HttpRequest request, [String filePath = ""]) {
   print("404 - ${request.uri} - $filePath");
@@ -17,7 +17,7 @@ startServer() {
   print("Server running...");
   initMongo(configuration.mongoDbUri);
   _jobQuery = new JobQuery();
-  _jobBuildReportQuery = new JobBuildReportQuery();
+  _buildOutput = new BuildOutputQuery();
 }
 
 _startServer(Path basePath, String ip, int port) {
@@ -54,7 +54,7 @@ Future<String> triggerBuild(String data){
     var jsonData = JSON.parse(data);
     
 //    var buildId = new Random(new DateTime.now().millisecondsSinceEpoch).nextInt(10000);
-    String buildId = JobBuildReport.generateId().toHexString();
+    String buildId = BuildOutput.generateId().toHexString();
     String workingDirectory = "${configuration.buildDir}/$buildId/";
     var build = new BuildCommand.fromGit(workingDirectory, jsonData["git_url"], configuration: configuration);
     runCommand(buildId, build);

@@ -22,7 +22,7 @@ closeMongo(){
  */
 _registerClasses(){
   objectory.registerClass(Job.OBJECT_NAME, () => new Job()); 
-  objectory.registerClass(JobBuildReport.OBJECT_NAME, () => new JobBuildReport());
+  objectory.registerClass(BuildOutput.OBJECT_NAME, () => new BuildOutput());
 }
 
 /**
@@ -144,14 +144,14 @@ class JobBuild extends EmbeddedPersistentObject {
 /**
  * Report represent a build log report.
  */
-class JobBuildReport extends PersistentObject {
+class BuildOutput extends PersistentObject {
   
-  static final String OBJECT_NAME = "BuildReport";
+  static final String OBJECT_NAME = "BuildOutput";
   static final String DATA_PARAM = "data";
   
-  JobBuildReport();
+  BuildOutput();
   
-  JobBuildReport.fromData(String data){// Sugar not working....
+  BuildOutput.fromData(String data){// Sugar not working....
     this.data = data;
   }
   
@@ -163,6 +163,7 @@ class JobBuildReport extends PersistentObject {
    * Save with a specific id.
    */
   Future saveWithId(ObjectId id){
+    print("Saving report with id ${id}");
     this.id = id;
     map["_id"] = id;
     objectory.addToCache(this);
@@ -195,10 +196,10 @@ class JobQuery {
 /**
  * Queries for JobBuildReport
  */
-class JobBuildReportQuery {
+class BuildOutputQuery {
   
-  Future<JobBuildReport> findById(ObjectId id) => objectory.findOne(_where.id(id));
+  Future<BuildOutput> findById(ObjectId id) => objectory.findOne(_where.id(id));
   
-  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(JobBuildReport.OBJECT_NAME);
+  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(BuildOutput.OBJECT_NAME);
   
 }
