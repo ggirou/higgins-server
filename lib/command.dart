@@ -5,7 +5,7 @@ Map<String, MessageBox> _commandIsolates = new Map();
 runCommand(String buildId, Command command) {
   IsolateSink sink = streamSpawnFunction(_runCommand);
   var mb = new MessageBox();
-  sink.add([buildId, command, mb.sink]);
+  sink.add([buildId, command, mb.sink, configuration.mongoDbUri]);
   sink.close();
   _commandIsolates[buildId] = mb;
 }
@@ -15,7 +15,16 @@ _runCommand() {
     String buildId = isolateArgs[0];
     Command command = isolateArgs[1];
     IsolateSink output = isolateArgs[2];
-    command.start().listen(output.add, onError: output.addError, onDone: output.close);
+    var mongoDbUri = isolateArgs[3];
+    StringBuffer reportBuffer = new StringBuffer();
+    initMongo(mongoDbUri).then((_) =>
+      command.start().asBroadcastStream()//..listen(output.add, onError: output.addError, onDone: output.close)
+                    ..listen(reportBuffer.write, onDone: () {
+                            var report = new BuildOutput.fromData(reportBuffer.toString());
+                            print("**********************\n"+report.data);
+                            report.saveWithId(new ObjectId.fromHexString(buildId)).then((_) => closeMongo);
+                      })
+    ); 
   });
 }
 

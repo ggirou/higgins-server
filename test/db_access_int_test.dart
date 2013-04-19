@@ -97,6 +97,5 @@ Future _injectData() =>
     .then((_) => new Job.withName("higgins-server").save())
     .then((_) => new Job.withName("higgins-heroku").save());
 
-_tearDown(){
-  closeMongo(); 
-}
+_tearDown() => closeMongo();
+
