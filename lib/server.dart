@@ -57,14 +57,6 @@ void serveBuilds(request) {
 }
 
 void serveBuild(request) {
-  _build(request);
-}
-
-void serveStatic(request) {
-  _staticFileHandler(_basePath, request);
-}
-
-void _build(HttpRequest request) {
   _readAsString(request).then((String data) {
       triggerBuild(data).then((String buildResult){
         HttpResponse response = request.response;
@@ -72,6 +64,10 @@ void _build(HttpRequest request) {
         ..close();
     });
   });
+}
+
+void serveStatic(request) {
+  _staticFileHandler(_basePath, request);
 }
 
 Future<String> triggerBuild(String data){
