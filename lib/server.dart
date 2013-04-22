@@ -13,40 +13,62 @@ startServer() {
   Path currentPath = new Path(new File(new Options().script).directorySync().path);
   Path basePath = currentPath.append(configuration.basePath).canonicalize();
   print("Lauching Web Server, rendering files from $basePath");
-  _startServer(basePath, configuration.host, configuration.port);
+  _startRouteServer(basePath, configuration.host, configuration.port);
   print("Server running...");
   initMongo(configuration.mongoDbUri);
   _jobQuery = new JobQuery();
   _buildOutput = new BuildOutputQuery();
 }
 
-_startServer(Path basePath, String ip, int port) {
-  HttpServer.bind(ip, port).then((HttpServer server) {
-    print('Server started on: http://$ip:$port');
-    server.listen((HttpRequest request) {
-      var path = request.uri.path;
-      print("${request.method} - ${path}");
+final configURL = new UrlPattern('/config/');
+final commandURL = new UrlPattern(r'/command/(\d+)/\$');
+final buildsURL = new UrlPattern(r'/builds/(\d+)');
+final buildURL = new UrlPattern(r'/build/');
 
-      if(path.startsWith("/config/")) {
-        _showConfig(request);
-      } else if(path.startsWith("/command/")) {
-        new CommandHandler().handler(request);
-      } else if(path.startsWith("/builds/")) {
-        String job = path.substring(8);
-        _getBuilds(request, job);
-      } else if(path.startsWith("/build/")) {
-        _readAsString(request).then((String data) {
-            triggerBuild(data).then((String buildResult){
-              HttpResponse response = request.response;
-              response..write(buildResult)
-              ..close();
-          });
-        });
-      } else {
-        _staticFileHandler(basePath, request);
-      }
+Path _basePath;
+
+_startRouteServer(Path basePath, String ip, int port) {
+    _basePath = basePath;
+    HttpServer.bind(ip, port).then((HttpServer server) {
+      print('Server started on: http://$ip:$port');
+      var router = new Router(server);
+      router.serve(configURL).listen(serveConfig);
+      router.serve(commandURL).listen(serveCommand);
+      router.serve(buildsURL).listen(serveBuilds);
+      router.serve(buildURL).listen(serveBuild);
+      router.defaultStream.listen(serveStatic);
+    }, onError: (error) => print("Failed to start server: $error"));
+}
+
+void serveConfig(request) {
+  _showConfig(request);
+}
+
+void serveCommand(request) {
+  new CommandHandler().handler(request);
+}
+
+void serveBuilds(request) {
+  String job = commandURL.parse(request.uri.path)[0];
+  _getBuilds(request, job);
+}
+
+void serveBuild(request) {
+  _build(request);
+}
+
+void serveStatic(request) {
+  _staticFileHandler(_basePath, request);
+}
+
+void _build(HttpRequest request) {
+  _readAsString(request).then((String data) {
+      triggerBuild(data).then((String buildResult){
+        HttpResponse response = request.response;
+        response..write(buildResult)
+        ..close();
     });
-  }, onError: (error) => print("Failed to start server: $error"));
+  });
 }
 
 Future<String> triggerBuild(String data){
