@@ -1,7 +1,13 @@
 part of higgins_server;
 
+final configURL = new UrlPattern('/config/');
+final commandURL = new UrlPattern(r'/command/(\d+)/\$');
+final buildsURL = new UrlPattern(r'/builds/(\d+)');
+final buildURL = new UrlPattern(r'/build/');
+
 JobQuery _jobQuery;
 BuildOutputQuery _buildOutput;
+Path _basePath;
 
 _send404(HttpRequest request, [String filePath = ""]) {
   print("404 - ${request.uri} - $filePath");
@@ -19,13 +25,6 @@ startServer() {
   _jobQuery = new JobQuery();
   _buildOutput = new BuildOutputQuery();
 }
-
-final configURL = new UrlPattern('/config/');
-final commandURL = new UrlPattern(r'/command/(\d+)/\$');
-final buildsURL = new UrlPattern(r'/builds/(\d+)');
-final buildURL = new UrlPattern(r'/build/');
-
-Path _basePath;
 
 _startRouteServer(Path basePath, String ip, int port) {
     _basePath = basePath;
@@ -117,7 +116,7 @@ Future<String> _readAsString(HttpRequest request) {
 }
 
 _getConfig() {
-  var data = {
+  return {
               "host": configuration.host,
               "port": configuration.port,
               "basePath": configuration.basePath,
@@ -125,10 +124,9 @@ _getConfig() {
               "gitExecutablePath": configuration.gitExecutablePath,
               "pubExecutablePath": configuration.pubExecutablePath
   };
-  return data;
 }
 
-Future _getBuilds(String job) {  
+Future _getBuilds(String job) {
   if(job.isEmpty){
     return _jobQuery.all();
   } else {
