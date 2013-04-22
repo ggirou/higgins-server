@@ -41,7 +41,10 @@ _startRouteServer(Path basePath, String ip, int port) {
 }
 
 void serveConfig(request) {
-  _showConfig(request);
+  var data = _getConfig();
+  HttpResponse response = request.response;
+  response.write(data.toString());
+  response.close();
 }
 
 void serveCommand(request) {
@@ -96,7 +99,7 @@ Future<String> _readAsString(HttpRequest request) {
   return completer.future;
 }
 
-void _showConfig(HttpRequest request) {
+_getConfig() {
   var data = {
               "host": configuration.host,
               "port": configuration.port,
@@ -105,10 +108,7 @@ void _showConfig(HttpRequest request) {
               "gitExecutablePath": configuration.gitExecutablePath,
               "pubExecutablePath": configuration.pubExecutablePath
   };
-  
-  HttpResponse response = request.response;
-  response.write(data.toString());
-  response.close();
+  return data;
 }
 
 void _getBuilds(HttpRequest request, String job) {
