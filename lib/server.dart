@@ -52,9 +52,13 @@ void serveCommand(request) {
 }
 
 void serveBuilds(request) {
-  String job = commandURL.parse(request.uri.path)[0];
-  _getBuilds(request, job);
-}
+  var writeResponse = (List builds) => request.response
+      ..write(builds.toString())
+      ..close();
+  
+    String job = commandURL.parse(request.uri.path)[0];
+    _getBuilds(job).then(writeResponse);
+  }
 
 void serveBuild(request) {
   _readAsString(request).then((String data) {
@@ -67,7 +71,24 @@ void serveBuild(request) {
 }
 
 void serveStatic(request) {
-  _staticFileHandler(_basePath, request);
+  HttpResponse response = request.response;
+  final String file= request.uri.path == '/' ? '/index.html' : request.uri.path;
+  
+  String filePath = _basePath.append(file).canonicalize().toNativePath();
+  print(filePath);
+  if(!filePath.startsWith(_basePath.toNativePath())){
+    _send404(request, filePath);
+  } else {
+    final File file = new File(filePath);
+    file.exists().then((bool found) {
+      if (found) {
+        print("200 - ${request.uri.path} - $filePath");
+        file.openRead().pipe(response);
+      } else {
+        _send404(request, filePath);
+      }
+    });
+  }
 }
 
 Future<String> triggerBuild(String data){
@@ -107,36 +128,11 @@ _getConfig() {
   return data;
 }
 
-void _getBuilds(HttpRequest request, String job) {
-  var writeResponse = (List builds) => request.response
-      ..write(builds.toString())
-      ..close();
-  
+Future _getBuilds(String job) {  
   if(job.isEmpty){
-    _jobQuery.all().then(writeResponse);
+    return _jobQuery.all();
   } else {
-    _jobQuery.findByJob(job).then(writeResponse);
-  }
-}
-
-void _staticFileHandler(Path basePath, HttpRequest request) {
-  HttpResponse response = request.response;
-  final String file= request.uri.path == '/' ? '/index.html' : request.uri.path;
-  
-  String filePath = basePath.append(file).canonicalize().toNativePath();
-  print(filePath);
-  if(!filePath.startsWith(basePath.toNativePath())){
-    _send404(request, filePath);
-  } else {
-    final File file = new File(filePath);
-    file.exists().then((bool found) {
-      if (found) {
-        print("200 - ${request.uri.path} - $filePath");
-        file.openRead().pipe(response);
-      } else {
-        _send404(request, filePath);
-      }
-    });
+    return _jobQuery.findByJob(job);
   }
 }
 
