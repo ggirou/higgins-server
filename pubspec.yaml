@@ -1,10 +1,12 @@
 name: higgins_server
-version: 0.4.2
+version: 0.5.0
 author: The Pink Team
 description: Server part of the Higgins CI tool
 dependencies:
-  objectory: 0.1.7
-  route: '0.4.3'
+  objectory: 0.1.9
+  route: '0.4.5'
 dev_dependencies:
-  unittest: '0.4.7+1'
-  dartmocks: 0.3.6
+  unittest: '<0.5.1'
+  dartmocks: '0.4.0'
+environment:
+  sdk: "<0.5.1"
