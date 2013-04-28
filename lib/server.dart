@@ -1,7 +1,8 @@
 part of higgins_server;
 
 final configURL = new UrlPattern('/config/');
-final commandURL = new UrlPattern(r'/command/(\d+)/\$');
+final commandURL = new UrlPattern(r'/command/([0-9a-fA-F]+)/');
+// TODO: add a slash at the end
 final buildsURL = new UrlPattern(r'/builds/(\d+)');
 final buildURL = new UrlPattern(r'/build/');
 
@@ -39,18 +40,19 @@ _startRouteServer(Path basePath, String ip, int port) {
     }, onError: (error) => print("Failed to start server: $error"));
 }
 
-void serveConfig(request) {
+void serveConfig(HttpRequest request) {
   var data = _getConfig();
   HttpResponse response = request.response;
   response.write(data.toString());
   response.close();
 }
 
-void serveCommand(request) {
-  new CommandHandler().handler(request);
+void serveCommand(HttpRequest request) {
+  String buildId = commandURL.parse(request.uri.path)[0];
+  new CommandHandler(buildId).handler(request);
 }
 
-void serveBuilds(request) {
+void serveBuilds(HttpRequest request) {
   var writeResponse = (List builds) => request.response
       ..write(builds.toString())
       ..close();
@@ -59,7 +61,7 @@ void serveBuilds(request) {
     _getBuilds(job).then(writeResponse);
   }
 
-void serveBuild(request) {
+void serveBuild(HttpRequest request) {
   _readAsString(request).then((String data) {
       triggerBuild(data).then((String buildResult){
         HttpResponse response = request.response;
@@ -69,7 +71,7 @@ void serveBuild(request) {
   });
 }
 
-void serveStatic(request) {
+void serveStatic(HttpRequest request) {
   HttpResponse response = request.response;
   final String file= request.uri.path == '/' ? '/index.html' : request.uri.path;
   

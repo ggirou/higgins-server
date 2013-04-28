@@ -1,38 +1,49 @@
 part of higgins_server;
 
-Map<String, MessageBox> _commandIsolates = new Map();
+Map<String, Stream> _commandIsolates = new Map();
+
+class _RunCommandArgs {
+  final IsolateSink output;
+  final Configuration configuration;
+  final String buildId;
+  final Command command;
+  _RunCommandArgs(this.output, this.configuration, this.buildId, this.command);
+}
 
 runCommand(String buildId, Command command) {
   IsolateSink sink = streamSpawnFunction(_runCommand);
   var mb = new MessageBox();
-  sink.add([buildId, command, mb.sink, configuration.mongoDbUri]);
-  sink.close();
-  _commandIsolates[buildId] = mb;
+  sink..add([new _RunCommandArgs(mb.sink, configuration, buildId, command)])
+      ..close();
+  _commandIsolates[buildId] = mb.stream.asBroadcastStream();
 }
 
 _runCommand() {
-  stream.listen((List isolateArgs) {
-    String buildId = isolateArgs[0];
-    Command command = isolateArgs[1];
-    IsolateSink output = isolateArgs[2];
-    var mongoDbUri = isolateArgs[3];
+  stream.listen((List args) {
+    _RunCommandArgs commandArgs = args[0];
+    IsolateSink output = commandArgs.output;
+    
+    Stream commandStream = commandArgs.command.start().asBroadcastStream();
+    commandStream.listen(output.add, onError: output.addError, onDone: output.close);
+    // For debug purpose
+    commandStream.listen(stdout.write, onError: stdout.addError, onDone: () => stdout.write("Finished!"));
+    
     StringBuffer reportBuffer = new StringBuffer();
-    initMongo(mongoDbUri).then((_) =>
-      command.start().asBroadcastStream()//..listen(output.add, onError: output.addError, onDone: output.close)
-                    ..listen(reportBuffer.write, onDone: () {
-                            var report = new BuildOutput.fromData(reportBuffer.toString());
-                            print("**********************\n"+report.data);
-                            report.saveWithId(new ObjectId.fromHexString(buildId)).then((_) => closeMongo);
-                      })
-    ); 
+    commandStream.listen(reportBuffer.write, onDone: () {
+      initMongo(commandArgs.configuration.mongoDbUri).then((_) {
+        var report = new BuildOutput.fromData(reportBuffer.toString());
+        print("\n**********************\n${report.data}\n**********************\n");
+        report.saveWithId(new ObjectId.fromHexString(commandArgs.buildId)).then((_) => closeMongo);
+      });
+    }); 
   });
 }
 
 Stream<String> getCommand(String buildId) => 
-    _commandIsolates.containsKey(buildId) ? _commandIsolates[buildId].stream.asBroadcastStream() : null;
+  _commandIsolates.containsKey(buildId) ? _commandIsolates[buildId] : null;
 
 Stream<String> consumeCommand(String buildId) =>
-  _commandIsolates.containsKey(buildId) ? _commandIsolates.remove(buildId).stream : null;
+  _commandIsolates.containsKey(buildId) ? _commandIsolates.remove(buildId) : null;
 
 abstract class Command {
   Stream<String> start();
@@ -45,23 +56,23 @@ class BaseCommand extends Command {
   
   BaseCommand(this.executable, [arguments, options]) :
     this.arguments = ?arguments ? new List.from(arguments) : new List(),
-    this.options = ?options ? options : new ProcessOptions();
-  
-  Stream<String> start() {
-    StreamController<String> output = new StreamController();
+        this.options = ?options ? options : new ProcessOptions();
     
-    output..add("\$ ")..add(executable)..add(" ")..add(arguments.join(" "))..add("\n");
-    Process.start(executable, arguments, options).then((Process p) {
-      StringDecoder decoder = new StringDecoder();
-      p.stderr.transform(decoder).listen(output.add, onError: output.addError);
-      p.stdout.transform(decoder).listen(output.add, onError: output.addError, onDone: output.close);
-    }).catchError(output.addError);
+    Stream<String> start() {
+      StreamController<String> output = new StreamController();
+      
+      output..add("\$ ")..add(executable)..add(" ")..add(arguments.join(" "))..add("\n");
+      Process.start(executable, arguments, options).then((Process p) {
+        StringDecoder decoder = new StringDecoder();
+        p.stderr.transform(decoder).listen(output.add, onError: output.addError);
+        p.stdout.transform(decoder).listen(output.add, onError: output.addError, onDone: output.close);
+      }).catchError(output.addError);
+      
+      return output.stream;
+    }
     
-    return output.stream;
-  }
-  
-  String get workingDirectory => options.workingDirectory;
-  set workingDirectory(String  value) => options.workingDirectory = value;
+    String get workingDirectory => options.workingDirectory;
+    set workingDirectory(String  value) => options.workingDirectory = value;
 }
 
 class CommandsSequence extends Command {
@@ -107,14 +118,14 @@ class BuildCommand extends CommandsSequence {
         gitExecutablePath: configuration.gitExecutablePath, 
         destinationDir: workingDirectory)..workingDirectory = workingDirectory, 
         new PubCommand.install(pubExecutablePath: configuration.pubExecutablePath)..workingDirectory = workingDirectory]),
-    this.workingDirectory = workingDirectory {
+        this.workingDirectory = workingDirectory {
   }
   
   Stream<String> start() {
     StreamController<String> output = new StreamController();
     new Directory(workingDirectory).create(recursive: true)
-      .then((_) => super.start().listen(output.add, onError: output.addError, onDone: output.close))
-      .catchError(output.addError);
+    .then((_) => super.start().listen(output.add, onError: output.addError, onDone: output.close))
+    .catchError(output.addError);
     return output.stream;
   }
 }

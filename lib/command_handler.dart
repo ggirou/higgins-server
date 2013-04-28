@@ -1,15 +1,13 @@
 part of higgins_server;
 
 class CommandHandler {
-  static final RegExp _paramRegExp = new RegExp("/([0-9a-fA-F]+)/\$");
+  final String buildId;
+  CommandHandler(this.buildId);
   
   handler(HttpRequest request) {
     Stream<String> commandStream = null;
     
-    if(_paramRegExp.hasMatch(request.uri.path)) {
-      String buildId = _paramRegExp.firstMatch(request.uri.path)[1];
-      commandStream = consumeCommand(buildId);
-    }
+    commandStream = consumeCommand(buildId);
 
     if(commandStream != null) {
       print("200 - ${request.uri}");
@@ -34,7 +32,5 @@ class CommandHandler {
     sink.add("data:");
     sink.add(value);
     sink.add("\n\n");
-    // TODO: remove
-    print(value);
   }
 }
