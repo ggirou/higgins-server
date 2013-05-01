@@ -6,7 +6,7 @@ dependencies:
   objectory: 0.1.9
   route: '0.4.5'
 dev_dependencies:
-  unittest: '<0.5.1'
+  unittest: '>=0.5.1'
   dartmocks: '0.4.0'
 environment:
-  sdk: "<0.5.1"
+  sdk: ">=0.5.1"
