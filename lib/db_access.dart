@@ -21,8 +21,8 @@ closeMongo(){
  * Register classes in objectory
  */
 _registerClasses(){
-  objectory.registerClass(Job.OBJECT_NAME, () => new Job()); 
-  objectory.registerClass(BuildOutput.OBJECT_NAME, () => new BuildOutput());
+  objectory.registerClass(Job, () => new Job()); 
+  objectory.registerClass(BuildOutput, () => new BuildOutput());
 }
 
 /**
@@ -186,14 +186,12 @@ class JobQuery {
   /**
    * Find all build.
    */
-  Future<List<PersistentObject>> all() => objectory.find(_where);
+  Future<List<PersistentObject>> all() => objectory[Job].find();
   
   /**
    * Find build by jobName
    */
-  Future<Job> findByJob(String jobName) => objectory.findOne(_where.eq(Job.NAME_PARAM, jobName));
-  
-  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(Job.OBJECT_NAME);
+  Future<Job> findByJob(String jobName) => objectory[Job].findOne(where.eq(Job.NAME_PARAM, jobName));
   
 }
 
@@ -202,8 +200,6 @@ class JobQuery {
  */
 class BuildOutputQuery {
   
-  Future<BuildOutput> findById(ObjectId id) => objectory.findOne(_where.id(id));
-  
-  ObjectoryQueryBuilder get _where => new ObjectoryQueryBuilder(BuildOutput.OBJECT_NAME);
+  Future<BuildOutput> findById(ObjectId id) => objectory[BuildOutputQuery].findOne(where.id(id));
   
 }

@@ -7,6 +7,7 @@ import 'package:higgins_server/higgins_server.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 
 const MONGO_URL = "mongodb://localhost";
+//const MONGO_URL = "mongodb://db_test:db_test@dbh62.mongolab.com:27627/higgins_test";// Use it if you don't have mongo
 
 JobQuery jobQuery;
 BuildOutputQuery buildOutputQuery;
@@ -29,7 +30,7 @@ main(){
           // Then
           (Job result) => expect(result, isNotNull))
     );    
-    
+
     test('Job : Should find nothing when not exists', 
       // When  
       () => jobQuery.findByJob("nonExist").then(
