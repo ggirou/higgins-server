@@ -17,7 +17,7 @@ _send404(HttpRequest request, [String filePath = ""]) {
 }
 
 startServer() {
-  Path currentPath = new Path(new File(new Options().script).directorySync().path);
+  Path currentPath = new Path(new File(new Options().script).directory.path);
   Path basePath = currentPath.append(configuration.basePath).canonicalize();
   print("Lauching Web Server, rendering files from $basePath");
   _startRouteServer(basePath, configuration.host, configuration.port);

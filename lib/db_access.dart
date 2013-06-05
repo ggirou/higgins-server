@@ -69,7 +69,6 @@ class Job extends PersistentObject {
   static final String REPOSITORY_PARAM = "repository";
   static final String CONFIGURATION__PARAM = "configuration";
   static final String BUILD_PARAM = "builds";
-  static final String BUILD_ELEMENT_PARAM = "build";
   
   Job();
   
@@ -86,7 +85,7 @@ class Job extends PersistentObject {
   String get configuration => getProperty(CONFIGURATION__PARAM);
   set configuration(String value) => setProperty(CONFIGURATION__PARAM, value);
   
-  List<JobBuild> get comments => new PersistentList<JobBuild>(this, BUILD_ELEMENT_PARAM, BUILD_PARAM);
+  List<JobBuild> get comments => new PersistentList<JobBuild>(this, JobBuild, BUILD_PARAM);
   
 }
 
