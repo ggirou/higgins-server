@@ -52,17 +52,16 @@ abstract class Command {
 class BaseCommand extends Command {
   final String executable;
   List<String> arguments;
-  ProcessOptions options;
+  String workingDirectory;
   
-  BaseCommand(this.executable, [arguments, options]) :
-    this.arguments = ?arguments ? new List.from(arguments) : new List(),
-        this.options = ?options ? options : new ProcessOptions();
+  BaseCommand(this.executable, [arguments, this.workingDirectory]) :
+    this.arguments = ?arguments ? new List.from(arguments) : new List();
     
     Stream<String> start() {
       StreamController<String> output = new StreamController();
       
       output..add("\$ ")..add(executable)..add(" ")..add(arguments.join(" "))..add("\n");
-      Process.start(executable, arguments, options).then((Process p) {
+      Process.start(executable, arguments, workingDirectory: workingDirectory).then((Process p) {
         StringDecoder decoder = new StringDecoder();
         p.stderr.transform(decoder).listen(output.add, onError: output.addError);
         p.stdout.transform(decoder).listen(output.add, onError: output.addError, onDone: output.close);
@@ -71,8 +70,6 @@ class BaseCommand extends Command {
       return output.stream;
     }
     
-    String get workingDirectory => options.workingDirectory;
-    set workingDirectory(String  value) => options.workingDirectory = value;
 }
 
 class CommandsSequence extends Command {
