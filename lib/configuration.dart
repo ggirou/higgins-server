@@ -55,7 +55,7 @@ class BaseConfiguration extends Configuration {
 
 class ConfigurationFile extends BaseConfiguration {
   ConfigurationFile.parse(String json, {Map<String, String> environment}) {
-    if(!?environment) {
+    if(environment == null) {
       environment = Platform.environment;
     }
     Map<String, Object> values = JSON.parse(json, _reviver(environment));

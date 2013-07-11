@@ -55,7 +55,7 @@ class BaseCommand extends Command {
   String workingDirectory;
   
   BaseCommand(this.executable, [arguments, this.workingDirectory]) :
-    this.arguments = ?arguments ? new List.from(arguments) : new List();
+    this.arguments = arguments ? new List.from(arguments) : new List();
     
     Stream<String> start() {
       StreamController<String> output = new StreamController();
@@ -96,7 +96,7 @@ class CommandsSequence extends Command {
 class GitCommand extends BaseCommand {
   GitCommand.clone(String gitRepoUrl, {String gitExecutablePath: "git", String destinationDir}) :
     super(gitExecutablePath, ["clone", gitRepoUrl]) {
-    if(?destinationDir) {
+    if(destinationDir != null) {
       arguments.add(destinationDir);
     }
   }
