@@ -55,7 +55,7 @@ class BaseCommand extends Command {
   String workingDirectory;
   
   BaseCommand(this.executable, [arguments, this.workingDirectory]) :
-    this.arguments = arguments ? new List.from(arguments) : new List();
+    this.arguments = arguments != null ? new List.from(arguments) : new List();
     
     Stream<String> start() {
       StreamController<String> output = new StreamController();
