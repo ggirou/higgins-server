@@ -6,6 +6,7 @@ environment:
   sdk: '>=0.6.3'
 dependencies:
   objectory: '>=0.3.6 <0.3.7'
+  pathos: '>=0.6.3'
   route: '>=0.4.5 <0.4.6'
 dev_dependencies:
   dartmocks: '>=0.4.1 <0.4.2'

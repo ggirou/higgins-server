@@ -8,7 +8,7 @@ final buildURL = new UrlPattern(r'/build/');
 
 JobQuery _jobQuery;
 BuildOutputQuery _buildOutput;
-Path _basePath;
+String _basePath;
 
 _send404(HttpRequest request, [String filePath = ""]) {
   print("404 - ${request.uri} - $filePath");
@@ -17,8 +17,7 @@ _send404(HttpRequest request, [String filePath = ""]) {
 }
 
 startServer() {
-  Path currentPath = new Path(new File(new Options().script).directory.path);
-  Path basePath = currentPath.append(configuration.basePath).canonicalize();
+  final basePath = path.join(path.current, configuration.basePath);
   print("Lauching Web Server, rendering files from $basePath");
   _startRouteServer(basePath, configuration.host, configuration.port);
   print("Server running...");
@@ -27,7 +26,7 @@ startServer() {
   _buildOutput = new BuildOutputQuery();
 }
 
-_startRouteServer(Path basePath, String ip, int port) {
+_startRouteServer(String basePath, String ip, int port) {
     _basePath = basePath;
     HttpServer.bind(ip, port).then((HttpServer server) {
       print('Server started on: http://$ip:$port');
@@ -73,13 +72,14 @@ void serveBuild(HttpRequest request) {
 
 void serveStatic(HttpRequest request) {
   HttpResponse response = request.response;
-  final String file= request.uri.path == '/' ? '/index.html' : request.uri.path;
-  
-  String filePath = _basePath.append(file).canonicalize().toNativePath();
+  final String file = request.uri.path == '/' ? 'index.html' : request.uri.path.substring(1);
+  //final filePath = _basePath+file;
+  // TODO join fail ???? => not absolute
+  final filePath = path.join(_basePath, file);
   print(filePath);
-  if(!filePath.startsWith(_basePath.toNativePath())){
+  if(!filePath.startsWith(_basePath)){
     _send404(request, filePath);
-  } else {
+ } else {
     final File file = new File(filePath);
     file.exists().then((bool found) {
       if (found) {

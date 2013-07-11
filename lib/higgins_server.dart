@@ -5,6 +5,7 @@ import 'dart:isolate';
 import 'dart:math';
 import 'package:objectory/objectory_console.dart';
 import 'package:route/server.dart';
+import 'package:pathos/path.dart' as path;
 
 part "configuration.dart";
 part "command.dart";
