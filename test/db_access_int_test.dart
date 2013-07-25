@@ -85,10 +85,10 @@ main(){
 
 Future<bool> _setUp(){
   Completer completer = new Completer();
-  initMongo(MONGO_URL, dropCollectionsOnStartup: true).then((bool success) {
+  initMongo(MONGO_URL, dropCollectionsOnStartup: true).then((_) {// WTF initMongo does not return a Future<bool>
     jobQuery = new JobQuery();
     buildOutputQuery = new BuildOutputQuery();
-    _injectData().then((_) => completer.complete(success));
+    _injectData().then((_) => completer.complete(true));
   });
   return completer.future;
 }
